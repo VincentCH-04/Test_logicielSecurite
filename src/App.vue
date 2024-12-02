@@ -1,15 +1,20 @@
 <template>
+  <NavBar />
+  <!--<div class="Connection">
+    <button @click="showImage = !showImage">Connect</button>-->
   <img alt="Vue logo" src="./assets/image-test.jpg">
   <HelloWorld msg="Welcome to Your Vue.js App"/>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import NavBar from './components/NavBar.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    NavBar
   }
 }
 </script>
