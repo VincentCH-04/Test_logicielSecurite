@@ -1,7 +1,5 @@
 <template>
-  <NavBar />
-  <!--<div class="Connection">
-    <button @click="showImage = !showImage">Connect</button>-->
+  <NavBar/>
   <img alt="Vue logo" src="./assets/image-test.jpg">
   <HelloWorld msg="Welcome to Your Vue.js App"/>
 </template>
@@ -26,6 +24,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 0px;
+}
+
+.custom-navbar {
+  height: 50px; /* Ajustez cette valeur selon vos besoins */
 }
 </style>
