@@ -30,7 +30,7 @@ export default {
   data() {
     return {
       //retourne l'état actuel de la vue
-      currentView: 'ContentMain'
+      currentView: 'ContentMain',
     };
   },
   methods: {

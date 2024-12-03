@@ -56,6 +56,7 @@ export default {
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         this.toggleModal();
         this.$emit('login-success', userCredential.user);
+        return userCredential.user;
       } catch (error) {
         this.errorMessages = error.message;
         alert(error.message);

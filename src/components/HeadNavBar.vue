@@ -72,14 +72,16 @@ export default {
     },
     handleLoginSuccess(user) {
       this.user = user;
+      return this.user;
     },
     logout() {
       this.user = null;
+      return this.user;
     }
   }
 };
 </script>
 
 <style scoped>
-/* Add your styles here */
+
 </style>

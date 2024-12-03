@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="table is-bordered full-page-table">
+    <table class="table is-bordered full-page-table is-center">
       <thead>
           <tr>
             <th>NAME</th>
@@ -106,7 +106,7 @@ export default {
 
 .table-container {
   width: calc(100vw - 20px);
-  height: calc(100vh - 20px);
+  height: 100vh; /* Full viewport height */
   margin: 10px;
   display: flex;
   justify-content: center;
@@ -114,18 +114,14 @@ export default {
 }
 
 .full-page-table {
-  width: 100%;
-  height: 100%;
+  width: 100%; /* Adjust the width as needed */
+  height: 80%;
   table-layout: fixed;
 }
 
-.is-odd {
-  background-color: #d1ecf1; /* Light blue background for link cells */
-  color: #0c5460; /* Dark blue text for link cells */
+/* Center the table and not the content */
+.is-center {
+  text-align: center;
 }
 
-.is-even {
-  background-color: #cce5ff; /* Light blue background for primary cells */
-  color: #004085; /* Dark blue text for primary cells */
-}
 </style>
