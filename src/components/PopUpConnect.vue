@@ -28,6 +28,7 @@
             <button class="button is-primary" @click="signIn">Log in</button>
           </p>
         </div>
+        <p v-if="errorMessages" class="notification is-danger">{{ errorMessages }}</p>
       </section>
     </div>
   </div>
@@ -59,7 +60,9 @@ export default {
         return userCredential.user;
       } catch (error) {
         this.errorMessages = error.message;
-        alert(error.message);
+        setTimeout(() => {
+          this.errorMessages = '';
+        }, 3000);
       }
     },
     async logout() {

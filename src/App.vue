@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <HeadNavBar @change-view="changeView"/>
+    <HeadNavBar @change-view="changeView" :isadmin="isAdmin"/>
     <ContentMain v-if="currentView === 'ContentMain'"/>
-    <CreationCompte v-if="currentView === 'CreationCompte'"/>
-    <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
-    <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
-    <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
+    <CreationCompte v-if="isAdmin && currentView === 'CreationCompte'"/>
+    <CreationMateriel v-if="isAdmin && currentView === 'CreationMateriel'"/>
+    <ModificationMateriel v-if="isAdmin && currentView === 'ModificationMateriel'"/>
+    <ModificationCompte v-if="isAdmin && currentView === 'ModificationCompte'"/>
   </div>
 </template>
 
@@ -29,8 +29,8 @@ export default {
   },
   data() {
     return {
-      //retourne l'état actuel de la vue
-      currentView: 'ContentMain',
+      currentView: 'ContentMain', //retourne l'état actuel de la vue
+      isAdmin: true // Changer en vrai pour avoir accès aux vues d'administration
     };
   },
   methods: {

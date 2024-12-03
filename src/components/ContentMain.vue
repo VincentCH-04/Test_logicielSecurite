@@ -17,8 +17,8 @@
             <td>{{ item.dateDispo }}</td>
             <td>{{ item.prix }}</td>
             <td>
-              <button class="button is-primary is-small" @click="reserveItem(item)">BP RESERVER</button>
-              <button class="button is-danger is-small" @click="deleteItem(item)">BP SUPPRIMER</button>
+              <button class="button is-primary is-small" @click="showReservationPopup(item)">RESERVER</button>
+              <button class="button is-danger is-small" @click="showDeletePopup(item)">SUPPRIMER</button>
             </td>
           </tr>
       </tbody>
@@ -27,6 +27,71 @@
       <button class="button" @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span>Page {{ currentPage }} of {{ totalPages }}</span>
       <button class="button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+    </div>
+
+    <div class="modal" :class="{ 'is-active': showDeleteModal }">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Confirmer la Suppression</p>
+          <button class="delete" aria-label="close" @click="closeDeletePopup"></button>
+        </header>
+        <section class="modal-card-body">
+          <p style="color: green;">Êtes-vous sûr de vouloir supprimer <strong>{{ itemToDelete?.name }}</strong> ?</p>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button is-danger" @click="deleteItem">Supprimer</button>
+          <button class="button" @click="closeDeletePopup">Annuler</button>
+        </footer>
+      </div>
+    </div>
+    
+    <div class="modal" :class="{ 'is-active': showReservationModal }">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Réserver {{ itemToReserve?.name }}</p>
+          <button class="delete" aria-label="close" @click="closeReservationPopup"></button>
+        </header>
+        <section class="modal-card-body">
+          <form @submit.prevent="reserveItem">
+            <div class="field">
+              <label class="label">Quantité</label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="number"
+                  v-model="reservation.quantity"
+                  placeholder="Entrez la quantité"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Nom du Réservant</label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="text"
+                  v-model="reservation.name"
+                  placeholder="Entrez votre nom"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="control">
+                <button class="button is-primary" type="submit">Confirmer</button>
+                <button class="button" @click="closeReservationPopup" type="button">Annuler</button>
+              </div>
+            </div>
+            <p v-if="successMessage" class="notification is-success">{{ successMessage }}</p>
+            <p v-if="errorMessage" class="notification is-danger">{{ errorMessage }}</p>
+          </form>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -43,8 +108,18 @@ export default {
         { name: "Item 3", stock: 8, dateDispo: "2024-12-15", prix: 25 },
         { name: "Item 4", stock: 3, dateDispo: "2024-12-18", prix: 30 },
       ],
+      showDeleteModal: false,
+      itemToDelete: null,
       currentPage: 1,
-      itemsPerPage: 4
+      itemsPerPage: 4,
+      showReservationModal: false,
+      itemToReserve: null,
+      reservation: {
+        quantity: 1,
+        name: "",
+      },
+      successMessage: null,
+      errorMessage: null
     };
   },
   computed: {
@@ -58,23 +133,57 @@ export default {
     }
   },
   methods: {
-    reserveItem(item) {
-      //Exemple de modification
-      if(item.stock === 0) {
-        alert(`Stock épuisé pour: ${item.name}`);
-        //Dans 2jours
-        const twoDaysInMilliseconds = 2 * 24 * 60 * 60 * 1000;
-        item.dateDispo = new Date(Date.now() + twoDaysInMilliseconds).toISOString().split('T')[0];
-        return;
+    showReservationPopup(item) {
+      this.itemToReserve = item; // Définit l'élément à réserver
+      this.showReservationModal = true; // Affiche la popup
+    },
+    closeReservationPopup() {
+      this.showReservationModal = false; // Cache la popup
+      this.itemToReserve = null; // Réinitialise l'élément
+      this.reservation = { quantity: 1, name: "" }; // Réinitialise le formulaire
+    },
+    reserveItem() {
+      try{
+        setTimeout(() => {
+          this.successMessage = null;
+          this.errorMessage = null;
+        }, 5000);
+        if(this.itemToReserve.stock === 0) {
+          return this.errorMessage = "Stock épuisé pour cet article";
+        }
+        if(this.itemToReserve.stock < this.reservation.quantity) {
+          return this.errorMessage = "Stock insuffisant pour cette quantité";
+        }
+        if(this.reservation.quantity <= 0) {
+          return this.errorMessage = "Quantité invalide";
+        }
+        else{
+          this.itemToReserve.stock -= this.reservation.quantity;
+        }
+
+        this.successMessage = "Réservation effectuée avec succès !";
+        this.errorMessage = null;
+
+        // Fermer la popup
+        this.closeReservationPopup();
       }
-      else{
-        alert(`Réservation pour: ${item.name}`);
-        item.stock -= 1;
+      catch(error){
+        console.error("Erreur lors de la réservation :", error);
+        this.errorMessage = "Erreur lors de la réservation.";
+        this.successMessage = null;
       }
     },
-    deleteItem(item) {
-      alert(`Suppression de: ${item.name}`);
-      this.items = this.items.filter(i => i !== item); // Exemple de suppression
+    showDeletePopup(item) {
+      this.itemToDelete = item; // Définit l'élément à supprimer
+      this.showDeleteModal = true; // Affiche la popup
+    },
+    closeDeletePopup() {
+      this.showDeleteModal = false; // Cache la popup
+      this.itemToDelete = null; // Réinitialise l'élément à supprimer
+    },
+    deleteItem() {
+      this.showDeleteModal = false; // Cache la popup
+      this.items = this.items.filter((item) => item.name !== this.itemToDelete.name); // Exemple de suppression
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {
@@ -104,17 +213,9 @@ export default {
   margin: 0 5px;
 }
 
-.table-container {
-  width: calc(100vw - 20px);
-  height: 100vh; /* Full viewport height */
-  margin: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .full-page-table {
-  width: 100%; /* Adjust the width as needed */
+  margin: 20px auto;
+  width: 100%;
   height: 80%;
   table-layout: fixed;
 }

@@ -58,12 +58,14 @@
 import PopUpConnect from './PopUpConnect.vue';
 
 export default {
+  name: 'HeadNavBar',
   components: {
     PopUpConnect
   },
   data() {
     return {
-      user: null
+      user: null,
+      isAdmin: false
     };
   },
   methods: {
@@ -72,7 +74,14 @@ export default {
     },
     handleLoginSuccess(user) {
       this.user = user;
-      return this.user;
+      // Si l'utilisateur est un administrateur, affichez les vues d'administration
+      if (user.role === 'admin') {
+        this.isAdmin = true;
+      }
+      else {
+        this.isAdmin = false;
+      }
+      return this.user, this.isAdmin;
     },
     logout() {
       this.user = null;

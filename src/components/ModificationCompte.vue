@@ -1,7 +1,6 @@
 <template>
     <div class="edit-account-container">
       <h1 class="title">Modifier un Compte</h1>
-      <form @submit.prevent="updateAccount">
         <div class="field">
           <label class="label">Nom</label>
           <div class="control">
@@ -39,22 +38,12 @@
             </div>
           </div>
         </div>
-  
-        <div class="field">
-          <label class="label">Actif</label>
-          <div class="control">
-            <label class="checkbox">
-              <input type="checkbox" v-model="user.isActive" /> Activer le compte
-            </label>
-          </div>
-        </div>
-  
+
         <div class="field">
           <div class="control">
-            <button class="button is-primary" type="submit">Modifier</button>
+            <button class="button is-primary" type="submit" @click="updateAccount">Modifier</button>
           </div>
         </div>
-      </form>
   
       <div v-if="message" class="notification" :class="{ 'is-success': success, 'is-danger': !success }">
         {{ message }}
@@ -74,7 +63,6 @@ export default {
         name: "",
         email: "",
         role: "user",
-        isActive: true,
       },
       message: null,
       success: false,
@@ -105,7 +93,6 @@ export default {
           name: this.user.name,
           email: this.user.email,
           role: this.user.role,
-          isActive: this.user.isActive,
         });
 
         this.message = "Compte utilisateur mis à jour avec succès !";
@@ -115,12 +102,14 @@ export default {
         this.message = "Erreur lors de la mise à jour du compte.";
         this.success = false;
       }
+      setTimeout(() => {
+        this.message = null;
+      }, 3000);
+      setTimeout(() => {
+        this.success = false;
+      }, 3000);
     },
-  },
-  mounted() {
-    const userId = "idUtilisateur"; // Remplacez par un ID dynamique ou un paramètre de route
-    this.fetchUser(userId);
-  },
+  }
 };
 </script>
 
