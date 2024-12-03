@@ -1,20 +1,47 @@
 <template>
-  <NavBar/>
-  <img alt="Vue logo" src="./assets/image-test.jpg">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <HeadNavBar @change-view="changeView"/>
+    <ContentMain v-if="currentView === 'ContentMain'"/>
+    <CreationCompte v-if="currentView === 'CreationCompte'"/>
+    <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
+    <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
+    <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import NavBar from './components/NavBar.vue';
+import ContentMain from './components/ContentMain.vue';
+import HeadNavBar from './components/HeadNavBar.vue';
+import CreationCompte from './components/CreationCompte.vue';
+import CreationMateriel from './components/CreationMateriel.vue';
+import ModificationMateriel from './components/ModificationMateriel.vue';
+import ModificationCompte from './components/ModificationCompte.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
-    NavBar
+    ContentMain,
+    HeadNavBar,
+    CreationCompte,
+    CreationMateriel,
+    ModificationMateriel,
+    ModificationCompte
+  },
+  data() {
+    return {
+      //retourne l'état actuel de la vue
+      currentView: 'ContentMain'
+    };
+  },
+  methods: {
+    changeView(view) {
+      if(view !== this.currentView) {
+        this.currentView = view;
+      }
+      return this.currentView;
+    }
   }
-}
+};
 </script>
 
 <style>

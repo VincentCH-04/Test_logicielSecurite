@@ -1,38 +1,7 @@
-<script>
-import PopUpConnect from './PopUpConnect.vue';
-
-export default {
-  components: {
-    PopUpConnect
-  },
-  data() {
-    return {
-      user: null
-    };
-  },
-  methods: {
-    PopUpConnect() {
-      this.$refs.popupConnect.toggleModal();
-    },
-    handleLoginSuccess(user) {
-      this.user = user;
-    },
-    logout() {
-      this.user = null;
-      // Add Firebase sign out logic here if needed
-    }
-  }
-};
-</script>
-
-<style scoped>
-/* Add your styles here */
-</style>
-
 <template>
     <nav class="navbar custom-navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <a class="navbar-item" href="http://localhost:8080/">
+            <a class="navbar-item" href="http://localhost:8080/" @click="$emit('change-view', 'ContentMain')">
                 <img fill="none" src="../assets/logo_1.png" alt="LOGO">
                 <img/>
             </a>
@@ -42,7 +11,23 @@ export default {
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
             </a>
-        </div>    
+        </div>
+        <div class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" @click="$emit('change-view', 'CreationMateriel')">
+            Création Matériel
+          </a>
+          <a class="navbar-item" @click="$emit('change-view', 'ModificationMateriel')">
+            Modification Matériel
+          </a>
+          <a class="navbar-item" @click="$emit('change-view', 'CreationCompte')">
+            Création Compte utilisateur
+          </a>
+          <a class="navbar-item" @click="$emit('change-view', 'ModificationCompte')">
+            Modification Compte
+          </a>
+        </div>
+      </div>    
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="output">
@@ -68,3 +53,33 @@ export default {
     <!-- Include the PopUpConnect component with a ref -->
   <PopUpConnect ref="popupConnect" @login-success="handleLoginSuccess"/>
 </template>
+
+<script>
+import PopUpConnect from './PopUpConnect.vue';
+
+export default {
+  components: {
+    PopUpConnect
+  },
+  data() {
+    return {
+      user: null
+    };
+  },
+  methods: {
+    PopUpConnect() {
+      this.$refs.popupConnect.toggleModal();
+    },
+    handleLoginSuccess(user) {
+      this.user = user;
+    },
+    logout() {
+      this.user = null;
+    }
+  }
+};
+</script>
+
+<style scoped>
+/* Add your styles here */
+</style>
