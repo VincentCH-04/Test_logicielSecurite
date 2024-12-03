@@ -66,5 +66,5 @@ export default {
     </nav>
 
     <!-- Include the PopUpConnect component with a ref -->
-  <PopUpConnect ref="popupConnect" />
+  <PopUpConnect ref="popupConnect" @login-success="handleLoginSuccess"/>
 </template>

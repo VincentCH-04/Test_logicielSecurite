@@ -36,13 +36,15 @@
 <script>
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
 
 export default {
   data() {
     return {
       isActive: false,
       email: '',
-      password: ''
+      password: '',
+      errorMessages: ''
     };
   },
   methods: {
@@ -55,9 +57,18 @@ export default {
         this.toggleModal();
         this.$emit('login-success', userCredential.user);
       } catch (error) {
+        this.errorMessages = error.message;
         alert(error.message);
       }
+    },
+    async logout() {
+    try {
+      await signOut(auth);
+      this.user = null;
+    } catch (error) {
+      console.error("Error during sign out:", error);
     }
+  }
   }
 };
 </script>
