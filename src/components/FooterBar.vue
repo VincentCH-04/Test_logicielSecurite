@@ -16,7 +16,7 @@
             © Tous droits réservés 2024 Locamat
         </div>
         <div class="footer-section">
-            Version 1.0
+            Version {{ version }}
         </div>
         <div @click="toggleAPropos" class="footer-section">
             À propos de Locamat
@@ -38,12 +38,15 @@
 </template>
 
 <script>
+import packageJson from '../../package.json';
+
 export default {
     name: 'FooterBar',
     data() {
         return{
             contactVisu: false,
-            AProposVisu: false
+            AProposVisu: false,
+            version: packageJson.version
         };
     },
     methods: {
@@ -81,5 +84,9 @@ export default {
 .footer-columns {
   display: flex;
   justify-content: space-between;
+}
+
+.footer-column {
+  margin: 0 10px;
 }
 </style>

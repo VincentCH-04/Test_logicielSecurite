@@ -38,6 +38,9 @@
         </header>
         <section class="modal-card-body">
           <p style="color: green;">Êtes-vous sûr de vouloir supprimer <strong>{{ itemToDelete?.name }}</strong> ?</p>
+          <input class="input" type="number" v-model="suppresion.quantity" placeholder="Entrez la quantité" required/>
+          <p v-if="successMessage" class="notification is-success">{{ successMessage }}</p>
+          <p v-if="errorMessage" class="notification is-danger">{{ errorMessage }}</p>
         </section>
         <footer class="modal-card-foot">
           <button class="button is-danger" @click="deleteItem">Supprimer</button>
@@ -110,14 +113,20 @@ export default {
       ],
       showDeleteModal: false,
       itemToDelete: null,
+      suppresion: {
+        quantity: 1,
+      },
+
       currentPage: 1,
       itemsPerPage: 4,
+
       showReservationModal: false,
       itemToReserve: null,
       reservation: {
         quantity: 1,
         name: "",
       },
+
       successMessage: null,
       errorMessage: null
     };
@@ -147,7 +156,8 @@ export default {
         setTimeout(() => {
           this.successMessage = null;
           this.errorMessage = null;
-        }, 5000);
+          this.closeReservationPopup();
+        }, 3000);
         if(this.itemToReserve.stock === 0) {
           return this.errorMessage = "Stock épuisé pour cet article";
         }
@@ -163,9 +173,6 @@ export default {
 
         this.successMessage = "Réservation effectuée avec succès !";
         this.errorMessage = null;
-
-        // Fermer la popup
-        this.closeReservationPopup();
       }
       catch(error){
         console.error("Erreur lors de la réservation :", error);
@@ -182,8 +189,35 @@ export default {
       this.itemToDelete = null; // Réinitialise l'élément à supprimer
     },
     deleteItem() {
-      this.showDeleteModal = false; // Cache la popup
-      this.items = this.items.filter((item) => item.name !== this.itemToDelete.name); // Exemple de suppression
+      try{
+        setTimeout(() => {
+          this.successMessage = null;
+          this.errorMessage = null;
+          this.closeDeletePopup();
+        }, 3000);
+        if (this.itemToDelete.stock === 0) {
+          this.errorMessage = "Stock épuisé pour cet article";
+          return;
+        }
+        if (this.itemToDelete.stock < this.suppresion.quantity) {
+          this.errorMessage = "Stock insuffisant pour cette quantité";
+          return;
+        }
+        if (this.suppresion.quantity <= 0) {
+          this.errorMessage = "Quantité invalide";
+          return;
+        }
+        else{
+          this.itemToDelete.stock -= this.suppresion.quantity;
+        }
+
+        this.errorMessage = null;
+        this.successMessage = "Suppression effectuée avec succès !";
+      }
+      catch(error){
+        console.error("Erreur lors de la suppression :", error);
+        this.errorMessage = "Erreur lors de la suppression.";
+      }
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {
