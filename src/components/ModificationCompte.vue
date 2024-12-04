@@ -2,12 +2,13 @@
     <div class="edit-account-container">
       <h1 class="title">Modifier un Compte</h1>
         <div class="field">
-          <label class="label">Nom</label>
+          <label class="label" for="name">Nom</label>
           <div class="control">
             <input
               class="input"
               type="text"
               v-model="user.name"
+              id="name"
               placeholder="Nom complet"
               required
             />
@@ -15,12 +16,13 @@
         </div>
   
         <div class="field">
-          <label class="label">Email</label>
+          <label class="label" for="email">Email</label>
           <div class="control">
             <input
               class="input"
               type="email"
               v-model="user.email"
+              id="email"
               placeholder="Adresse email"
               required
             />
@@ -28,10 +30,10 @@
         </div>
   
         <div class="field">
-          <label class="label">Rôle</label>
+          <label class="label" for="role">Rôle</label>
           <div class="control">
             <div class="select">
-              <select v-model="user.role" required>
+              <select v-model="user.role" id="role" required>
                 <option value="admin">Admin</option>
                 <option value="user">Utilisateur</option>
               </select>

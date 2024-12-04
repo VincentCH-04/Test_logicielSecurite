@@ -35,9 +35,8 @@
 </template>
 
 <script>
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
-import { signOut } from 'firebase/auth';
 
 export default {
   data() {
