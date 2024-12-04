@@ -13,6 +13,9 @@
             </p>
         </div>
         <div class="footer-section">
+            <a href="https://drive.google.com/drive/u/0/folders/1_zZupTXEe4kw6BTCLBjRtK7SQmZbKkkE">Drive</a>
+        </div>
+        <div class="footer-section">
             © Tous droits réservés 2024 Locamat
         </div>
         <div class="footer-section">

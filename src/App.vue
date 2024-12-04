@@ -32,7 +32,7 @@ export default {
   },
   data() {
     return {
-      currentView: 'ContentMain', //retourne l'état actuel de la vue
+      currentView: 'ContentMain', //Retourne l'état actuel de la vue
       isAdmin: true // Changer en vrai pour avoir accès aux vues d'administration
     };
   },
