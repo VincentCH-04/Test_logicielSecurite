@@ -6,6 +6,7 @@
     <CreationMateriel v-if="isAdmin && currentView === 'CreationMateriel'"/>
     <ModificationMateriel v-if="isAdmin && currentView === 'ModificationMateriel'"/>
     <ModificationCompte v-if="isAdmin && currentView === 'ModificationCompte'"/>
+    <FooterBar/>
   </div>
 </template>
 
@@ -16,6 +17,7 @@ import CreationCompte from './components/CreationCompte.vue';
 import CreationMateriel from './components/CreationMateriel.vue';
 import ModificationMateriel from './components/ModificationMateriel.vue';
 import ModificationCompte from './components/ModificationCompte.vue';
+import FooterBar from './components/FooterBar.vue';
 
 export default {
   name: 'App',
@@ -25,7 +27,8 @@ export default {
     CreationCompte,
     CreationMateriel,
     ModificationMateriel,
-    ModificationCompte
+    ModificationCompte,
+    FooterBar
   },
   data() {
     return {
