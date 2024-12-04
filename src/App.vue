@@ -6,7 +6,7 @@
     <CreationMateriel v-if="isAdmin && currentView === 'CreationMateriel'"/>
     <ModificationMateriel v-if="isAdmin && currentView === 'ModificationMateriel'"/>
     <ModificationCompte v-if="isAdmin && currentView === 'ModificationCompte'"/>
-    <FooterBar/>
+    <FooterBar :isAdmin="isAdmin"/>
   </div>
 </template>
 
@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       currentView: 'ContentMain', //Retourne l'état actuel de la vue
-      isAdmin: true // Changer en vrai pour avoir accès aux vues d'administration
+      isAdmin: false // Changer en vrai pour avoir accès aux vues d'administration
     };
   },
   methods: {
