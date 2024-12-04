@@ -2,10 +2,9 @@
     <nav class="navbar custom-navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="http://localhost:8080/" @click="$emit('change-view', 'ContentMain')">
-                <img fill="none" src="../assets/logo_1.png" alt="LOGO">
-                <img/>
-            </a>
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                <img fill="none" src="../assets/logo_1.png" alt="LOGO"/>
+            
+            <button class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample" @keydown="handleKeydown"></button>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -81,7 +80,7 @@ export default {
       else {
         this.isAdmin = false;
       }
-      return this.user, this.isAdmin;
+      return { user: this.user, isAdmin: this.isAdmin };
     },
     logout() {
       this.user = null;
@@ -90,7 +89,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-
-</style>

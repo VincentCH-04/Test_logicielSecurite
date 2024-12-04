@@ -4,37 +4,37 @@
       <form @submit.prevent="createUser">
         <!-- Champ Nom -->
         <div class="field">
-          <label class="label">Nom</label>
+          <label class="label" for="name">Nom</label>
           <div class="control">
-            <input class="input" type="text" v-model="user.name" placeholder="Nom complet"/>
+            <input class="input" type="text" id="name" v-model="user.name" placeholder="Nom complet"/>
           </div>
           <p v-if="errors.name" class="help is-danger">{{ errors.name }}</p>
         </div>
   
         <!-- Champ Email -->
         <div class="field">
-          <label class="label">Email</label>
+          <label class="label" for="email">Email</label>
           <div class="control">
-            <input class="input" type="email" v-model="user.email" placeholder="Adresse email"/>
+            <input class="input" type="email" id="email" v-model="user.email" placeholder="Adresse email"/>
           </div>
           <p v-if="errors.email" class="help is-danger">{{ errors.email }}</p>
         </div>
   
         <!-- Champ Mot de Passe -->
         <div class="field">
-          <label class="label">Mot de Passe</label>
+          <label class="label" for="password">Mot de Passe</label>
           <div class="control">
-            <input class="input" type="password" v-model="user.password" placeholder="Mot de passe"/>
+            <input class="input" type="password" id="password" v-model="user.password" placeholder="Mot de passe"/>
           </div>
           <p v-if="errors.password" class="help is-danger">{{ errors.password }}</p>
         </div>
   
         <!-- Champ Rôle -->
         <div class="field">
-          <label class="label">Rôle</label>
+          <label class="label" for="role">Rôle</label>
           <div class="control">
             <div class="select">
-              <select v-model="user.role">
+              <select id="role" v-model="user.role">
                 <option value="admin">Admin</option>
                 <option value="user">Utilisateur</option>
               </select>
