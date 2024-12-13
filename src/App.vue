@@ -2,10 +2,12 @@
   <div id="app">
     <HeadNavBar @change-view="changeView" @update-is-admin="updateIsAdmin" @update-is-connected="updateIsConnected"/>
     <ContentMain v-if="currentView === 'ContentMain'" :isAdmin="isAdmin" :isConnected="isConnected"/>
-    <CreationCompte v-if="isAdmin && currentView === 'CreationCompte' && isConnected"/>
-    <CreationMateriel v-if="isAdmin && currentView === 'CreationMateriel'"/>
-    <ModificationMateriel v-if="isAdmin && currentView === 'ModificationMateriel'"/>
-    <ModificationCompte v-if="isAdmin && currentView === 'ModificationCompte'"/>
+    <div v-if="isConnected && isAdmin">
+      <CreationCompte v-if="currentView === 'CreationCompte'"/>
+      <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
+      <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
+      <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
+    </div>
     <FooterBar :isAdmin="isAdmin"/>
   </div>
 </template>

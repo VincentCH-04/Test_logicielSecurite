@@ -35,7 +35,6 @@
           <div class="control">
             <div class="select">
               <select id="role" v-model="user.role">
-                <option value="admin">Admin</option>
                 <option value="user">Utilisateur</option>
               </select>
             </div>
