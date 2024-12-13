@@ -109,27 +109,14 @@
 </template>
 
 <script>
+import { collection, getDocs, doc, updateDoc, addDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default {
   name: 'MainContent',
-  props: {
-        isAdmin: {
-            type: Boolean,
-            required: true
-        },
-        isConnected: {
-            type: Boolean,
-            required: true
-        },
-    },
-  data(){
+  data() {
     return {
-      items: [
-        { name: "Item 1", reference: "ffff" , constructeur: "Samsung" ,stock: 10, dateDispo: "2024-12-10", prix: 20 },
-        { name: "Item 2", reference: "ffff" , constructeur: "Samsung" ,stock: 5, dateDispo: "2024-12-12", prix: 15 },
-        { name: "Item 3", reference: "ffff" , constructeur: "Samsung" ,stock: 8, dateDispo: "2024-12-15", prix: 25 },
-        { name: "Item 4", reference: "ffff" , constructeur: "Samsung" ,stock: 3, dateDispo: "2024-12-18", prix: 30 },
-      ],
+      items: [], // Liste vide pour charger les données depuis Firestore
       showDeleteModal: false,
       itemToDelete: null,
       suppresion: {
@@ -147,7 +134,7 @@ export default {
       },
 
       successMessage: null,
-      errorMessage: null
+      errorMessage: null,
     };
   },
   computed: {
@@ -158,60 +145,83 @@ export default {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return this.items.slice(start, end);
-    }
+    },
   },
   methods: {
+    async fetchItems() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Materiels"));
+        this.items = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      } catch (error) {
+        console.error("Erreur lors du chargement des matériels :", error);
+        this.errorMessage = "Erreur lors du chargement des données.";
+      }
+    },
     showReservationPopup(item) {
-      this.itemToReserve = item; // Définit l'élément à réserver
-      this.showReservationModal = true; // Affiche la popup
+      this.itemToReserve = item;
+      this.showReservationModal = true;
     },
     closeReservationPopup() {
-      this.showReservationModal = false; // Cache la popup
-      this.itemToReserve = null; // Réinitialise l'élément
-      this.reservation = { quantity: 1, name: "" }; // Réinitialise le formulaire
+      this.showReservationModal = false;
+      this.itemToReserve = null;
+      this.reservation = { quantity: 1, name: "" };
     },
-    reserveItem() {
-      try{
+    async reserveItem() {
+      try {
+        if (this.itemToReserve.stock === 0) {
+          return (this.errorMessage = "Stock épuisé pour cet article");
+        }
+        if (this.itemToReserve.stock < this.reservation.quantity) {
+          return (this.errorMessage = "Stock insuffisant pour cette quantité");
+        }
+        if (this.reservation.quantity <= 0) {
+          return (this.errorMessage = "Quantité invalide");
+        }
+
+        // Mettre à jour le stock localement
+        this.itemToReserve.stock -= this.reservation.quantity;
+
+        // Mise à jour dans Firestore
+        const itemRef = doc(db, "Materiels", this.itemToReserve.id);
+        await updateDoc(itemRef, {
+          stock: this.itemToReserve.stock,
+        });
+
+        // Ajouter la réservation dans la collection "Réservation"
+        await addDoc(collection(db, "Réservation"), {
+          itemName: this.itemToReserve.name,
+          reservedBy: this.reservation.name,
+          quantity: this.reservation.quantity,
+          date: new Date().toISOString(),
+        });
+
+        this.successMessage = "Réservation effectuée avec succès !";
+        this.errorMessage = null;
+
         setTimeout(() => {
           this.successMessage = null;
           this.errorMessage = null;
           this.closeReservationPopup();
         }, 3000);
-        if(this.itemToReserve.stock === 0) {
-          this.errorMessage = "Stock épuisé pour cet article";
-          return;
-        }
-        if(this.itemToReserve.stock < this.reservation.quantity) {
-          this.errorMessage = "Stock insuffisant pour cette quantité";
-          return this.errorMessage;
-        }
-        if(this.reservation.quantity <= 0) {
-          this.errorMessage = "Quantité invalide";
-          return this.errorMessage
-        }
-        else{
-          this.itemToReserve.stock -= this.reservation.quantity;
-        }
-
-        this.successMessage = "Réservation effectuée avec succès !";
-        this.errorMessage = null;
-      }
-      catch(error){
+      } catch (error) {
         console.error("Erreur lors de la réservation :", error);
         this.errorMessage = "Erreur lors de la réservation.";
         this.successMessage = null;
       }
     },
     showDeletePopup(item) {
-      this.itemToDelete = item; // Définit l'élément à supprimer
-      this.showDeleteModal = true; // Affiche la popup
+      this.itemToDelete = item;
+      this.showDeleteModal = true;
     },
     closeDeletePopup() {
-      this.showDeleteModal = false; // Cache la popup
-      this.itemToDelete = null; // Réinitialise l'élément à supprimer
+      this.showDeleteModal = false;
+      this.itemToDelete = null;
     },
     deleteItem() {
-      try{
+      try {
         setTimeout(() => {
           this.successMessage = null;
           this.errorMessage = null;
@@ -228,15 +238,13 @@ export default {
         if (this.suppresion.quantity <= 0) {
           this.errorMessage = "Quantité invalide";
           return;
-        }
-        else{
+        } else {
           this.itemToDelete.stock -= this.suppresion.quantity;
         }
 
         this.errorMessage = null;
         this.successMessage = "Suppression effectuée avec succès !";
-      }
-      catch(error){
+      } catch (error) {
         console.error("Erreur lors de la suppression :", error);
         this.errorMessage = "Erreur lors de la suppression.";
       }
@@ -250,11 +258,14 @@ export default {
       if (this.currentPage > 1) {
         this.currentPage--;
       }
-    }
-  }
-}
-
+    },
+  },
+  mounted() {
+    this.fetchItems(); // Récupère les matériels au montage du composant
+  },
+};
 </script>
+
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
