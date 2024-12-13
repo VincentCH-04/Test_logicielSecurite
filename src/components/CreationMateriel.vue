@@ -1,74 +1,78 @@
 <template>
-    <div class="create-material-container">
-      <h1 class="title">Créer un Nouveau Matériel</h1>
-      <form @submit.prevent="createMaterial">
-        <div class="field">
-          <label class="label">Nom du Matériel</label>
-          <div class="control">
-            <input
+  <div class="create-material-container">
+    <h1 class="title">Créer un Nouveau Matériel</h1>
+    <form @submit.prevent="createMaterial">
+      <div class="field">
+        <label class="label">Nom du Matériel</label>
+        <div class="control">
+          <input
               class="input"
               type="text"
               v-model="material.name"
               placeholder="Nom du matériel"
               required
-            />
-          </div>
+          />
         </div>
-  
-        <div class="field">
-          <label class="label">Stock</label>
-          <div class="control">
-            <input
+      </div>
+
+      <div class="field">
+        <label class="label">Stock</label>
+        <div class="control">
+          <input
               class="input"
               type="number"
               v-model="material.stock"
               placeholder="Quantité en stock"
               required
-            />
-          </div>
+          />
         </div>
-  
-        <div class="field">
-          <label class="label">Date de Disponibilité</label>
-          <div class="control">
-            <input
-              class="input"
-              type="date"
-              v-model="material.dateDispo"
-              required
-            />
-          </div>
-        </div>
-  
-        <div class="field">
-          <label class="label">Prix</label>
-          <div class="control">
-            <input
+      </div>
+
+      <div class="field">
+        <label class="label">Prix</label>
+        <div class="control">
+          <input
               class="input"
               type="number"
               step="0.01"
               v-model="material.prix"
               placeholder="Prix du matériel"
               required
-            />
-          </div>
+          />
         </div>
-  
-        <div class="field">
-          <div class="control">
-            <button class="button is-primary" type="submit">Créer</button>
-          </div>
-        </div>
-      </form>
-  
-      <div v-if="message" class="notification" :class="{ 'is-success': success, 'is-danger': !success }">
-        {{ message }}
       </div>
+
+      <div class="field">
+        <label class="label">ID de l'Utilisateur</label>
+        <div class="control">
+          <input
+              class="input"
+              type="text"
+              v-model="material.userId"
+              placeholder="ID de l'utilisateur"
+              required
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <button class="button is-primary" type="submit">Créer</button>
+        </div>
+      </div>
+    </form>
+
+    <div v-if="message" class="notification" :class="{ 'is-success': success, 'is-danger': !success }">
+      {{ message }}
     </div>
-  </template>
-  
-  <script>
-import { collection, addDoc } from "firebase/firestore"; // Import Firestore
+  </div>
+</template>
+
+
+
+
+<script>
+import { collection, addDoc, doc, setDoc } from "firebase/firestore"; // Import Firestore
 import { db } from "../firebase"; // Importez l'instance Firestore
 
 export default {
@@ -77,8 +81,8 @@ export default {
       material: {
         name: "",
         stock: 0,
-        dateDispo: "",
         prix: 0,
+        userId: "", // ID de l'utilisateur auquel le matériel sera attribué
       },
       message: null,
       success: false,
@@ -86,25 +90,43 @@ export default {
   },
   methods: {
     async createMaterial() {
+      if (!this.material.name || !this.material.userId) {
+        this.message = "Le nom du matériel et l'ID utilisateur sont requis.";
+        this.success = false;
+        return;
+      }
+
       try {
-        // Ajouter un nouveau document dans la collection "materials"
-        await addDoc(collection(db, "materials"), {
+        // Ajouter le matériel principal dans la collection "Materiels"
+        const materialRef = await addDoc(collection(db, "Materiels"), {
           name: this.material.name,
           stock: this.material.stock,
-          dateDispo: this.material.dateDispo,
           prix: this.material.prix,
+          userId: this.material.userId,
+          dateAjout: new Date().toISOString(), // Date d'ajout automatique
         });
 
-        // Afficher un message de succès
-        this.message = "Matériel créé avec succès !";
+        // Ajouter les unités dans la sous-collection "Units"
+        for (let i = 0; i < this.material.stock; i++) {
+          const unitRef = doc(collection(materialRef, "Units"));
+          await setDoc(unitRef, {
+            materialId: materialRef.id,  // ID du matériel parent
+            userId: this.material.userId, // ID de l'utilisateur
+            status: "Disponible", // Statut initial de l'unité (ex : disponible)
+            dateAjout: new Date().toISOString(), // Date d'ajout de l'unité
+          });
+        }
+
+        // Message de succès
+        this.message = "Matériel créé avec succès avec les unités associées.";
         this.success = true;
 
         // Réinitialiser le formulaire
         this.material = {
           name: "",
           stock: 0,
-          dateDispo: "",
           prix: 0,
+          userId: "",
         };
       } catch (error) {
         console.error("Erreur lors de la création :", error);

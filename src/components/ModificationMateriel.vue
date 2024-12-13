@@ -85,18 +85,13 @@
 
 
 <script>
-import { doc, updateDoc, } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default {
   data() {
     return {
-      items: [
-        { id: "id1", name: "Item 1", stock: 10, dateDispo: "2024-12-10", prix: 20 },
-        { id: "id2", name: "Item 2", stock: 5, dateDispo: "2024-12-12", prix: 15 },
-        { id: "id3", name: "Item 3", stock: 8, dateDispo: "2024-12-15", prix: 25 },
-        { id: "id4", name: "Item 4", stock: 3, dateDispo: "2024-12-18", prix: 30 },
-      ],
+      items: [], // Liste vide pour charger les données Firestore
       editableItem: null,
       editForm: {
         name: "",
@@ -126,6 +121,18 @@ export default {
     },
   },
   methods: {
+    async fetchItems() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Materiels"));
+        this.items = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      } catch (error) {
+        console.error("Erreur lors du chargement des matériels :", error);
+        this.errors.firebase = "Impossible de charger les données.";
+      }
+    },
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -155,68 +162,35 @@ export default {
 
       if (!this.editForm.name) {
         this.errors.name = "Le nom est requis.";
-        setTimeout(() => {
-          this.errors.name = null;
-        }, 3000);
       }
       if (this.editForm.stock <= 0) {
         this.errors.stock = "Le stock doit être positif.";
-        setTimeout(() => {
-          this.errors.stock = null;
-        }, 3000);
       }
       if (!this.editForm.dateDispo) {
         this.errors.dateDispo = "La date est requise.";
-        setTimeout(() => {
-          this.errors.dateDispo = null;
-        }, 3000);
       }
       if (this.editForm.prix <= 0) {
         this.errors.prix = "Le prix doit être positif.";
-        setTimeout(() => {
-          this.errors.prix = null;
-        }, 3000);
       }
 
       return !Object.values(this.errors).some((error) => error !== null);
     },
     async saveItem(item) {
-      if (!this.validateFields()) return; // Valide les champs avant la sauvegarde
+      if (!this.validateFields()) return;
 
       try {
-        // Met à jour l'élément dans Firestore
-        const docRef = doc(db, "materials", item.id);
+        const docRef = doc(db, "Materiels", item.id);
         await updateDoc(docRef, { ...this.editForm });
-
-        // Met à jour les données locales
         Object.assign(item, this.editForm);
-
-        // Réinitialise l'état d'édition
         this.editableItem = null;
-        this.errors = {};
       } catch (error) {
         console.error("Erreur Firebase :", error);
-
-        // Gestion des erreurs Firebase
-        if (error.code === "permission-denied") {
-          this.errors.firebase =
-            "Vous n'avez pas la permission de modifier cet élément.";
-        } else if (error.code === "not-found") {
-          this.errors.firebase = "L'élément à modifier est introuvable.";
-        } else if (error.code === "unavailable") {
-          this.errors.firebase =
-            "Le service est actuellement indisponible. Vérifiez votre connexion.";
-        } else if (error.code === "deadline-exceeded") {
-          this.errors.firebase =
-            "La connexion avec la base de données a expiré. Réessayez plus tard.";
-        } else {
-          this.errors.firebase = "Une erreur inattendue s'est produite.";
-        }
-        setTimeout(() => {
-          this.errors.firebase = null;
-        }, 5000);
+        this.errors.firebase = "Erreur de mise à jour.";
       }
     },
+  },
+  mounted() {
+    this.fetchItems(); // Charger les matériels au montage du composant
   },
 };
 </script>

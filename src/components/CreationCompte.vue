@@ -57,117 +57,118 @@
       </div>
     </div>
   </template>
-  
 
-  <script>
-  import { collection, addDoc } from "firebase/firestore";
-  import { createUserWithEmailAndPassword } from "firebase/auth";
-  import { db, auth } from "../firebase";
-  
-  export default {
-    data() {
-      return {
-        user: {
+
+<script>
+import { doc, setDoc } from "firebase/firestore"; // Utilisation de setDoc pour définir un ID spécifique
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { db, auth } from "../firebase";
+
+export default {
+  data() {
+    return {
+      user: {
+        name: "",
+        email: "",
+        password: "",
+        role: "user",
+      },
+      errors: {
+        name: null,
+        email: null,
+        password: null,
+        role: null,
+      },
+      message: null,
+      success: false,
+    };
+  },
+  methods: {
+    validateFields() {
+      // Réinitialisation des erreurs
+      this.errors = {
+        name: null,
+        email: null,
+        password: null,
+        role: null,
+      };
+
+      // Validation de chaque champ
+      if (!this.user.name) {
+        this.errors.name = "Le nom est requis.";
+      }
+      if (!this.user.email) {
+        this.errors.email = "L'adresse email est requise.";
+      } else if (!/\S+@\S+\.\S+/.test(this.user.email)) {
+        this.errors.email = "L'adresse email est invalide.";
+      }
+      if (!this.user.password) {
+        this.errors.password = "Le mot de passe est requis.";
+      } else if (this.user.password.length < 6) {
+        this.errors.password = "Le mot de passe doit contenir au moins 6 caractères.";
+      }
+      if (!this.user.role) {
+        this.errors.role = "Le rôle est requis.";
+      }
+
+      // Retourne vrai si aucune erreur
+      return !Object.values(this.errors).some((error) => error !== null);
+    },
+    async createUser() {
+      // Validation des champs avant soumission
+      if (!this.validateFields()) {
+        this.message = "Veuillez corriger les erreurs ci-dessus.";
+        this.success = false;
+        return;
+      }
+
+      try {
+        // Étape 1 : Créer l'utilisateur dans Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            this.user.email,
+            this.user.password
+        );
+
+        // Étape 2 : Ajouter les détails utilisateur dans Firestore
+        const userId = userCredential.user.uid; // ID généré par Firebase Auth
+        await setDoc(doc(db, "Utilisateurs", userId), {
+          id: userId,
+          name: this.user.name,
+          email: this.user.email,
+          role: this.user.role,
+          createdAt: new Date().toISOString(), // Date d'ajout automatique
+        });
+
+        // Message de succès
+        this.message = "Compte utilisateur créé avec succès !";
+        this.success = true;
+
+        // Réinitialisation du formulaire
+        this.user = {
           name: "",
           email: "",
           password: "",
           role: "user",
-        },
-        errors: {
-          name: null,
-          email: null,
-          password: null,
-          role: null,
-        },
-        message: null,
-        success: false,
-      };
-    },
-    methods: {
-      validateFields() {
-        // Réinitialisation des erreurs
-        this.errors = {
-          name: null,
-          email: null,
-          password: null,
-          role: null,
         };
-  
-        // Validation de chaque champ
-        if (!this.user.name) {
-          this.errors.name = "Le nom est requis.";
+      } catch (error) {
+        console.error("Erreur lors de la création de l'utilisateur :", error);
+
+        // Gestion des erreurs Firebase
+        if (error.code === "auth/email-already-in-use") {
+          this.errors.email = "Cette adresse email est déjà utilisée.";
+        } else {
+          this.message = error.message;
         }
-        if (!this.user.email) {
-          this.errors.email = "L'adresse email est requise.";
-        } else if (!/\S+@\S+\.\S+/.test(this.user.email)) {
-          this.errors.email = "L'adresse email est invalide.";
-        }
-        if (!this.user.password) {
-          this.errors.password = "Le mot de passe est requis.";
-        } else if (this.user.password.length < 6) {
-          this.errors.password = "Le mot de passe doit contenir au moins 6 caractères.";
-        }
-        if (!this.user.role) {
-          this.errors.role = "Le rôle est requis.";
-        }
-  
-        // Retourne vrai si aucune erreur
-        return !Object.values(this.errors).some((error) => error !== null);
-      },
-      async createUser() {
-        // Validation des champs avant soumission
-        if (!this.validateFields()) {
-          this.message = "Veuillez corriger les erreurs ci-dessus.";
-          this.success = false;
-          return;
-        }
-  
-        try {
-          // Étape 1 : Créer l'utilisateur dans Firebase Authentication
-          const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            this.user.email,
-            this.user.password
-          );
-  
-          // Étape 2 : Ajouter les détails utilisateur dans Firestore
-          const userId = userCredential.user.uid;
-          await addDoc(collection(db, "users"), {
-            id: userId,
-            name: this.user.name,
-            email: this.user.email,
-            role: this.user.role,
-            createdAt: new Date().toISOString(),
-          });
-  
-          // Message de succès
-          this.message = "Compte utilisateur créé avec succès !";
-          this.success = true;
-  
-          // Réinitialisation du formulaire
-          this.user = {
-            name: "",
-            email: "",
-            password: "",
-            role: "user",
-          };
-        } catch (error) {
-          console.error("Erreur lors de la création de l'utilisateur :", error);
-  
-          // Gestion des erreurs Firebase
-          if (error.code === "auth/email-already-in-use") {
-            this.errors.email = "Cette adresse email est déjà utilisée.";
-          } else {
-            this.message = error.message;
-          }
-  
-          this.success = false;
-        }
-      },
+
+        this.success = false;
+      }
     },
-  };
-  </script>
-  
+  },
+};
+</script>
+
+
 
 <style scoped>
 .create-user-container {
