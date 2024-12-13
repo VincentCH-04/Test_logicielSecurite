@@ -14,7 +14,7 @@
     <div class="navbar-menu">
       <div class="navbar-start">
         <div class="buttons">
-          <a v-if="localIsAdmin" class="navbar-item" @click="$emit('change-view', 'CreationMateriel')">
+          <a v-if="localIsAdmin" class="navbar-item" @click="$emit('change-view', 'CreationCompte')">
             Créer un compte
           </a>
           <a v-if="localIsAdmin" class="navbar-item" @click="$emit('change-view', 'CreationMateriel')">
