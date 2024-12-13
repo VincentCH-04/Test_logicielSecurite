@@ -12,7 +12,7 @@
             <br>dimitri.britan@etu.univ-tours.fr
             </p>
         </div>
-        <div class="footer-section">
+        <div v-if="isAdmin" class="footer-section">
             <a href="https://drive.google.com/drive/u/0/folders/1_zZupTXEe4kw6BTCLBjRtK7SQmZbKkkE">Drive</a>
         </div>
         <div class="footer-section">
@@ -45,6 +45,12 @@ import packageJson from '../../package.json';
 
 export default {
     name: 'FooterBar',
+    props: {
+        isAdmin: {
+            type: Boolean,
+            required: true
+        }
+    },
     data() {
         return{
             contactVisu: false,

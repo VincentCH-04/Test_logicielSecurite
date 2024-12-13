@@ -59,11 +59,12 @@
         <section class="modal-card-body">
           <form @submit.prevent="reserveItem">
             <div class="field">
-              <label class="label">Quantité</label>
+              <label class="label" for="reservation-quantity">Quantité</label>
               <div class="control">
                 <input
                   class="input"
                   type="number"
+                  id="reservation-quantity"
                   v-model="reservation.quantity"
                   placeholder="Entrez la quantité"
                   required
@@ -72,11 +73,12 @@
             </div>
 
             <div class="field">
-              <label class="label">Nom du Réservant</label>
+              <label class="label" for="reservation-name">Nom du Réservant</label>
               <div class="control">
                 <input
                   class="input"
                   type="text"
+                  id="reservation-name"
                   v-model="reservation.name"
                   placeholder="Entrez votre nom"
                   required
@@ -159,13 +161,16 @@ export default {
           this.closeReservationPopup();
         }, 3000);
         if(this.itemToReserve.stock === 0) {
-          return this.errorMessage = "Stock épuisé pour cet article";
+          this.errorMessage = "Stock épuisé pour cet article";
+          return;
         }
         if(this.itemToReserve.stock < this.reservation.quantity) {
-          return this.errorMessage = "Stock insuffisant pour cette quantité";
+          this.errorMessage = "Stock insuffisant pour cette quantité";
+          return this.errorMessage;
         }
         if(this.reservation.quantity <= 0) {
-          return this.errorMessage = "Quantité invalide";
+          this.errorMessage = "Quantité invalide";
+          return this.errorMessage
         }
         else{
           this.itemToReserve.stock -= this.reservation.quantity;

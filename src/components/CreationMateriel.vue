@@ -3,11 +3,12 @@
       <h1 class="title">Créer un Nouveau Matériel</h1>
       <form @submit.prevent="createMaterial">
         <div class="field">
-          <label class="label">Nom du Matériel</label>
+          <label class="label" for="materialName">Nom du Matériel</label>
           <div class="control">
             <input
               class="input"
               type="text"
+              id="materialName"
               v-model="material.name"
               placeholder="Nom du matériel"
               required
@@ -16,24 +17,20 @@
         </div>
   
         <div class="field">
-          <label class="label">Stock</label>
-          <div class="control">
-            <input
-              class="input"
-              type="number"
-              v-model="material.stock"
-              placeholder="Quantité en stock"
-              required
-            />
-          </div>
+          <label class="label control" for="stock">Stock</label>
+            <div class="control">
+              <input class="input" type="number" id="stock" v-model="material.stock"
+                placeholder="Quantité en stock" required />
+            </div>
         </div>
   
         <div class="field">
-          <label class="label">Date de Disponibilité</label>
+          <label class="label" for="dateDispo">Date de Disponibilité</label>
           <div class="control">
             <input
               class="input"
               type="date"
+              id="dateDispo"
               v-model="material.dateDispo"
               required
             />
@@ -41,11 +38,12 @@
         </div>
   
         <div class="field">
-          <label class="label">Prix</label>
+          <label class="label" for="prix">Prix</label>
           <div class="control">
             <input
               class="input"
               type="number"
+              id="prix"
               step="0.01"
               v-model="material.prix"
               placeholder="Prix du matériel"
