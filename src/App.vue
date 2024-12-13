@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <HeadNavBar @change-view="changeView" :isadmin="isAdmin"/>
-    <ContentMain v-if="currentView === 'ContentMain'"/>
-    <CreationCompte v-if="isAdmin && currentView === 'CreationCompte'"/>
+    <HeadNavBar @change-view="changeView" @update-is-admin="updateIsAdmin" @update-is-connected="updateIsConnected"/>
+    <ContentMain v-if="currentView === 'ContentMain'" :isAdmin="isAdmin" :isConnected="isConnected"/>
+    <CreationCompte v-if="isAdmin && currentView === 'CreationCompte' && isConnected"/>
     <CreationMateriel v-if="isAdmin && currentView === 'CreationMateriel'"/>
     <ModificationMateriel v-if="isAdmin && currentView === 'ModificationMateriel'"/>
     <ModificationCompte v-if="isAdmin && currentView === 'ModificationCompte'"/>
@@ -33,7 +33,8 @@ export default {
   data() {
     return {
       currentView: 'ContentMain', //Retourne l'état actuel de la vue
-      isAdmin: false // Changer en vrai pour avoir accès aux vues d'administration
+      isAdmin: false, // Changer en vrai pour avoir accès aux vues d'administration
+      isConnected: false
     };
   },
   methods: {
@@ -42,6 +43,14 @@ export default {
         this.currentView = view;
       }
       return this.currentView;
+    },
+    updateIsAdmin(newVal) {
+      this.isAdmin = newVal;
+      return this.isAdmin;
+    },
+    updateIsConnected(status) {
+      this.isConnected = status;
+      return this.isConnected;
     }
   }
 };

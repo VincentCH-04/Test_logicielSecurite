@@ -4,21 +4,25 @@
       <thead>
           <tr>
             <th>NAME</th>
+            <th>REFERENCE</th>
+            <th>CONSTRUCTEUR</th>
             <th>STOCK</th>
             <th>DATE DISPO</th>
             <th>PRIX</th>
-            <th>Actions</th>
+            <th v-if="isConnected">Actions</th>
           </tr>
         </thead>
       <tbody >
         <tr v-for="(item, index) in paginatedItems" :key="index">
             <td>{{ item.name }}</td>
+            <td>{{ item.reference }}</td>
+            <td>{{ item.constructeur }}</td>
             <td>{{ item.stock }}</td>
             <td>{{ item.dateDispo }}</td>
             <td>{{ item.prix }}</td>
-            <td>
+            <td v-if="isConnected">
               <button class="button is-primary is-small" @click="showReservationPopup(item)">RESERVER</button>
-              <button class="button is-danger is-small" @click="showDeletePopup(item)">SUPPRIMER</button>
+              <button v-if="isAdmin" class="button is-danger is-small" @click="showDeletePopup(item)">SUPPRIMER</button>
             </td>
           </tr>
       </tbody>
@@ -98,6 +102,9 @@
         </section>
       </div>
     </div>
+    <div>
+      <p class="demande-connexion" v-if="!isConnected">Veuillez vous connecter pour réserver un article</p>
+    </div>
   </div>
 </template>
 
@@ -105,13 +112,23 @@
 
 export default {
   name: 'MainContent',
+  props: {
+        isAdmin: {
+            type: Boolean,
+            required: true
+        },
+        isConnected: {
+            type: Boolean,
+            required: true
+        },
+    },
   data(){
     return {
       items: [
-        { name: "Item 1", stock: 10, dateDispo: "2024-12-10", prix: 20 },
-        { name: "Item 2", stock: 5, dateDispo: "2024-12-12", prix: 15 },
-        { name: "Item 3", stock: 8, dateDispo: "2024-12-15", prix: 25 },
-        { name: "Item 4", stock: 3, dateDispo: "2024-12-18", prix: 30 },
+        { name: "Item 1", reference: "ffff" , constructeur: "Samsung" ,stock: 10, dateDispo: "2024-12-10", prix: 20 },
+        { name: "Item 2", reference: "ffff" , constructeur: "Samsung" ,stock: 5, dateDispo: "2024-12-12", prix: 15 },
+        { name: "Item 3", reference: "ffff" , constructeur: "Samsung" ,stock: 8, dateDispo: "2024-12-15", prix: 25 },
+        { name: "Item 4", reference: "ffff" , constructeur: "Samsung" ,stock: 3, dateDispo: "2024-12-18", prix: 30 },
       ],
       showDeleteModal: false,
       itemToDelete: null,
@@ -241,6 +258,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.demande-connexion {
+  text-align: center;
+  align-content: center;
+
+  margin-top: 20px;
+  height: 160px;
+  color: #ffffff;
+  background-color: #ff3860;
+}
+
 .pagination {
   display: flex;
   justify-content: center;

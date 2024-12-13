@@ -86,7 +86,7 @@ export default {
     async createMaterial() {
       try {
         // Ajouter un nouveau document dans la collection "materials"
-        await addDoc(collection(db, "materials"), {
+        await addDoc(collection(db, "Materials"), {
           name: this.material.name,
           stock: this.material.stock,
           dateDispo: this.material.dateDispo,
