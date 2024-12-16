@@ -114,6 +114,16 @@ import { db } from "../firebase";
 
 export default {
   name: 'MainContent',
+  props: {
+    isAdmin: {
+      type: Boolean,
+      required: true
+    },
+    isConnected: {
+      type: Boolean,
+      required: true
+    }
+  },
   data() {
     return {
       items: [], // Liste vide pour charger les données depuis Firestore
