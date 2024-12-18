@@ -2,6 +2,7 @@
   <nav class="navbar custom-navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" @click="$emit('change-view', 'ContentMain')">
+        HOME
         <img fill="none" src="../assets/logo_1.png" alt="LOGO" />
       </a>
       <a class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample" @keydown="handleKeydown">

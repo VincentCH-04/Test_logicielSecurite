@@ -47,7 +47,7 @@
         <p v-if="errors.constructeur" class="error-message">{{ errors.constructeur }}</p>
       </div>
 
-      <div class="field">
+      <div class="field is-grouped is-grouped-centered box-text">
         <label class="label" for="stock">Stock</label>
         <div class="control">
           <input
@@ -60,9 +60,7 @@
           />
         </div>
         <p v-if="errors.stock" class="error-message">{{ errors.stock }}</p>
-      </div>
 
-      <div class="field">
         <label class="label" for="dateDispo">Date de Disponibilité</label>
         <div class="control">
           <input
@@ -83,7 +81,7 @@
             class="input"
             type="number"
             id="prix"
-            step="0.01"
+            step="1"
             v-model.number="material.prix"
             placeholder="Prix du matériel"
             :class="{ 'is-danger': errors.prix }"
@@ -97,12 +95,16 @@
           <button class="button is-primary" type="submit">Créer</button>
         </div>
       </div>
+
+      <div v-if="message" class="notification" :class="{ 'is-success': success, 'is-danger': !success }">
+        {{ message }}
+      </div>
     </form>
   </div>
 </template>
 
 <script>
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default {
@@ -143,6 +145,18 @@ export default {
       if (!this.validateForm()) {
         this.message = "Veuillez corriger les erreurs avant de soumettre.";
         this.success = false;
+        setTimeout(() => (this.message = null), 3000);
+        return;
+      }
+
+      const querySnapshot = await getDocs(collection(db, "Materials"));
+      const materialExists = querySnapshot.docs.some(doc => doc.data().name === this.material.name);
+
+      if (materialExists) {
+        this.message = "Un matériel avec le même nom existe déjà.";
+        this.success = false;
+        
+        setTimeout(() => (this.message = null), 3000);
         return;
       }
 
@@ -159,6 +173,8 @@ export default {
         this.message = "Matériel créé avec succès !";
         this.success = true;
 
+        setTimeout(() => (this.message = null), 3000);
+
         this.material = {
           name: "",
           reference: "",
@@ -172,6 +188,8 @@ export default {
         console.error("Erreur Firebase :", error.code, error.message);
         this.message = "Erreur lors de la création du matériel : " + error.message;
         this.success = false;
+
+        setTimeout(() => (this.message = null), 3000);
       }
     },
   },
@@ -195,17 +213,14 @@ export default {
   border-color: #e74c3c;
 }
 
-.error-message {
-  color: #e74c3c;
-  font-size: 0.85em;
-  margin-top: 5px;
-}
 
 .notification.is-success {
   background-color: #2ecc71;
 }
 
-.notification.is-danger {
-  background-color: #e74c3c;
+.box-text {
+  width: 100%;
+  text-align: center;
+  align-items: flex-end;
 }
 </style>

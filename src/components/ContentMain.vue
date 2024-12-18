@@ -2,37 +2,41 @@
   <div>
     <table class="table is-bordered full-page-table is-center">
       <thead>
-          <tr>
-            <th>NAME</th>
-            <th>REFERENCE</th>
-            <th>CONSTRUCTEUR</th>
-            <th>STOCK</th>
-            <th>DATE DISPO</th>
-            <th>PRIX</th>
-            <th v-if="isConnected">Actions</th>
-          </tr>
-        </thead>
-      <tbody >
+        <tr>
+          <th>NAME</th>
+          <th>REFERENCE</th>
+          <th>CONSTRUCTEUR</th>
+          <th>STOCK</th>
+          <th>DATE DISPO</th>
+          <th>PRIX</th>
+          <th v-if="isConnected">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
         <tr v-for="(item, index) in paginatedItems" :key="index">
-            <td>{{ item.name }}</td>
-            <td>{{ item.reference }}</td>
-            <td>{{ item.constructeur }}</td>
-            <td>{{ item.stock }}</td>
-            <td>{{ item.dateDispo }}</td>
-            <td>{{ item.prix }}</td>
-            <td v-if="isConnected">
-              <button class="button is-primary is-small" @click="showReservationPopup(item)">RESERVER</button>
-              <button v-if="isAdmin" class="button is-danger is-small" @click="showDeletePopup(item)">SUPPRIMER</button>
-            </td>
-          </tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.reference }}</td>
+          <td>{{ item.constructeur }}</td>
+          <td>{{ item.stock }}</td>
+          <td>{{ item.dateDispo }}</td>
+          <td>{{ item.prix }}</td>
+          <td v-if="isConnected">
+            <button class="button is-primary is-small" v-if="canReserve(item)" @click="showReservationPopup(item)">RESERVER</button>
+            <button v-if="canReturn(item)" class="button is-warning is-small" @click="returnMaterial(item)">RENDRE</button>
+            <button v-if="isAdmin" class="button is-danger is-small" @click="showDeletePopup(item)">SUPPRIMER</button>
+          </td>
+        </tr>
       </tbody>
     </table>
+
+    <!-- Pagination -->
     <div class="pagination">
       <button class="button" @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span>Page {{ currentPage }} of {{ totalPages }}</span>
       <button class="button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     </div>
 
+    <!-- Modal Suppression -->
     <div class="modal" :class="{ 'is-active': showDeleteModal }">
       <div class="modal-background"></div>
       <div class="modal-card">
@@ -41,8 +45,8 @@
           <button class="delete" aria-label="close" @click="closeDeletePopup"></button>
         </header>
         <section class="modal-card-body">
-          <p style="color: green;">Êtes-vous sûr de vouloir supprimer <strong>{{ itemToDelete?.name }}</strong> ?</p>
-          <input class="input" type="number" v-model="suppresion.quantity" placeholder="Entrez la quantité" required/>
+          <p>Êtes-vous sûr de vouloir supprimer <strong>{{ itemToDelete?.name }}</strong> ?</p>
+          <input class="input" type="number" v-model="suppression.quantity" placeholder="Entrez la quantité" required />
           <p v-if="successMessage" class="notification is-success">{{ successMessage }}</p>
           <p v-if="errorMessage" class="notification is-danger">{{ errorMessage }}</p>
         </section>
@@ -52,7 +56,8 @@
         </footer>
       </div>
     </div>
-    
+
+    <!-- Modal Réservation -->
     <div class="modal" :class="{ 'is-active': showReservationModal }">
       <div class="modal-background"></div>
       <div class="modal-card">
@@ -63,38 +68,16 @@
         <section class="modal-card-body">
           <form @submit.prevent="reserveItem">
             <div class="field">
-              <label class="label" for="reservation-quantity">Quantité</label>
-              <div class="control">
-                <input
-                  class="input"
-                  type="number"
-                  id="reservation-quantity"
-                  v-model="reservation.quantity"
-                  placeholder="Entrez la quantité"
-                  required
-                />
-              </div>
+              <label class="label">Quantité</label>
+              <input class="input" type="number" v-model="reservation.quantity" required />
             </div>
-
             <div class="field">
-              <label class="label" for="reservation-name">Nom du Réservant</label>
-              <div class="control">
-                <input
-                  class="input"
-                  type="text"
-                  id="reservation-name"
-                  v-model="reservation.name"
-                  placeholder="Entrez votre nom"
-                  required
-                />
-              </div>
+              <label class="label">Nom du Réservant</label>
+              <input class="input" type="text" v-model="reservation.name" required />
             </div>
-
             <div class="field">
-              <div class="control">
-                <button class="button is-primary" type="submit">Confirmer</button>
-                <button class="button" @click="closeReservationPopup" type="button">Annuler</button>
-              </div>
+              <button class="button is-primary" type="submit">Confirmer</button>
+              <button class="button" @click="closeReservationPopup" type="button">Annuler</button>
             </div>
             <p v-if="successMessage" class="notification is-success">{{ successMessage }}</p>
             <p v-if="errorMessage" class="notification is-danger">{{ errorMessage }}</p>
@@ -102,9 +85,9 @@
         </section>
       </div>
     </div>
-    <div>
-      <p class="demande-connexion" v-if="!isConnected">Veuillez vous connecter pour réserver un article</p>
-    </div>
+    <p v-if="!isConnected" class="demande-connexion">
+      Veuillez vous connecter pour réserver un article
+    </p>
   </div>
 </template>
 
@@ -113,36 +96,24 @@ import { collection, getDocs, doc, updateDoc, addDoc } from "firebase/firestore"
 import { db } from "../firebase";
 
 export default {
-  name: 'MainContent',
+  name: "MainContent",
   props: {
-    isAdmin: {
-      type: Boolean,
-      required: true
-    },
-    isConnected: {
-      type: Boolean,
-      required: true
-    }
+    isAdmin: { type: Boolean, required: true },
+    isConnected: { type: Boolean, required: true },
+    currentUser: { type: Object, required: true }, // Ajoutez ceci
   },
   data() {
     return {
-      items: [], // Liste vide pour charger les données depuis Firestore
+      items: [],
+      reservations: [],
       showDeleteModal: false,
       itemToDelete: null,
-      suppresion: {
-        quantity: 1,
-      },
-
-      currentPage: 1,
-      itemsPerPage: 4,
-
+      suppression: { quantity: 1 },
       showReservationModal: false,
       itemToReserve: null,
-      reservation: {
-        quantity: 1,
-        name: "",
-      },
-
+      reservation: { quantity: 1 },
+      currentPage: 1,
+      itemsPerPage: 4,
       successMessage: null,
       errorMessage: null,
     };
@@ -153,21 +124,71 @@ export default {
     },
     paginatedItems() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.items.slice(start, end);
+      return this.items.slice(start, start + this.itemsPerPage);
     },
   },
   methods: {
-    async fetchItems() {
+    canReserve(item) {
+      const userReservation = this.reservations.find(
+        (reservation) =>
+          reservation.itemId === item.id &&
+          reservation.userId === this.currentUser.id && // Vérifie l'utilisateur connecté
+          !reservation.returned
+      );
+      return !userReservation && item.stock > 0;
+    },
+    canReturn(item) {
+      return this.reservations.some(
+        (reservation) =>
+          reservation.itemId === item.id &&
+          reservation.userId === this.currentUser.id && // Vérifie l'utilisateur connecté
+          !reservation.returned
+      );
+    },
+    async fetchReservations() {
       try {
-        const querySnapshot = await getDocs(collection(db, "Materiels"));
-        this.items = querySnapshot.docs.map((doc) => ({
+        const reservationSnapshot = await getDocs(collection(db, "Réservation"));
+        this.reservations = reservationSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
       } catch (error) {
-        console.error("Erreur lors du chargement des matériels :", error);
-        this.errorMessage = "Erreur lors du chargement des données.";
+        console.error("Erreur lors du chargement des réservations :", error);
+        this.reservations = [];
+      }
+    },
+    async fetchItems() {
+      const snapshot = await getDocs(collection(db, "Materiels"));
+      this.items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    },
+    async returnMaterial(item) {
+      try {
+        const reservation = this.reservations.find(
+          (res) =>
+            res.itemId === item.id &&
+            res.userId === this.currentUser.id && // Vérifie que c'est la réservation de l'utilisateur connecté
+            !res.returned
+        );
+
+        if (!reservation) {
+          this.errorMessage = "Réservation introuvable pour cet utilisateur.";
+          setTimeout(() => (this.errorMessage = null), 3000);
+          return;
+        }
+
+        // Marquer la réservation comme retournée
+        await updateDoc(doc(db, "Réservation", reservation.id), { returned: true });
+
+        // Remettre à jour le stock
+        item.stock += reservation.quantity;
+        await updateDoc(doc(db, "Materiels", item.id), { stock: item.stock });
+
+        this.successMessage = "Matériel rendu avec succès.";
+        setTimeout(() => (this.successMessage = null), 3000);
+        this.fetchReservations();
+      } catch (error) {
+        this.errorMessage = "Une erreur est survenue lors du retour du matériel.";
+        setTimeout(() => (this.errorMessage = null), 3000);
       }
     },
     showReservationPopup(item) {
@@ -176,50 +197,63 @@ export default {
     },
     closeReservationPopup() {
       this.showReservationModal = false;
-      this.itemToReserve = null;
-      this.reservation = { quantity: 1, name: "" };
+      this.reservation = { quantity: 1 };
     },
     async reserveItem() {
+      // Validation des entrées
+      if (!this.itemToReserve) {
+        this.errorMessage = "Aucun article sélectionné pour la réservation.";
+        setTimeout(() => (this.errorMessage = null), 3000);
+        return;
+      }
+
+      if (!this.reservation.quantity || this.reservation.quantity <= 0) {
+        this.errorMessage = "Veuillez saisir une quantité valide.";
+        setTimeout(() => (this.errorMessage = null), 3000);
+        return;
+      }
+
+      if (this.itemToReserve.stock < this.reservation.quantity) {
+        this.errorMessage = "Stock insuffisant pour effectuer cette réservation.";
+        setTimeout(() => (this.errorMessage = null), 3000);
+        return;
+      }
+
       try {
-        if (this.itemToReserve.stock === 0) {
-          return (this.errorMessage = "Stock épuisé pour cet article");
-        }
-        if (this.itemToReserve.stock < this.reservation.quantity) {
-          return (this.errorMessage = "Stock insuffisant pour cette quantité");
-        }
-        if (this.reservation.quantity <= 0) {
-          return (this.errorMessage = "Quantité invalide");
-        }
-
-        // Mettre à jour le stock localement
+        // Mettre à jour le stock
         this.itemToReserve.stock -= this.reservation.quantity;
+        console.log("Mise à jour du stock :", this.itemToReserve.stock);
 
-        // Mise à jour dans Firestore
-        const itemRef = doc(db, "Materiels", this.itemToReserve.id);
-        await updateDoc(itemRef, {
-          stock: this.itemToReserve.stock,
-        });
+        try {
+          await updateDoc(doc(db, "Materiels", this.itemToReserve.id), {
+            stock: this.itemToReserve.stock,
+          });
+        } catch (updateError) {
+          console.error("Erreur lors de la mise à jour du stock :", updateError);
+          throw new Error("Impossible de mettre à jour le stock dans la base de données.");
+        }
 
-        // Ajouter la réservation dans la collection "Réservation"
-        await addDoc(collection(db, "Réservation"), {
-          itemName: this.itemToReserve.name,
-          reservedBy: this.reservation.name,
-          quantity: this.reservation.quantity,
-          date: new Date().toISOString(),
-        });
+        // Ajouter la réservation
+        try {
+          await addDoc(collection(db, "Réservation"), {
+            quantity: this.reservation.quantity,
+            userId: this.currentUser.id, // Associer l'utilisateur connecté
+            userName: this.currentUser.name, // Inclure le nom pour plus de clarté
+            itemId: this.itemToReserve.id,
+          });
+        } catch (addError) {
+          console.error("Erreur lors de l'ajout de la réservation :", addError);
+          throw new Error("Impossible d'ajouter la réservation dans la base de données.");
+        }
 
-        this.successMessage = "Réservation effectuée avec succès !";
-        this.errorMessage = null;
-
-        setTimeout(() => {
-          this.successMessage = null;
-          this.errorMessage = null;
-          this.closeReservationPopup();
-        }, 3000);
+        this.successMessage = "Réservation réussie.";
+        setTimeout(() => (this.successMessage = null), 3000);
+        this.fetchReservations();
+        setTimeout(this.closeReservationPopup, 2000);
       } catch (error) {
-        console.error("Erreur lors de la réservation :", error);
-        this.errorMessage = "Erreur lors de la réservation.";
-        this.successMessage = null;
+        console.error("Erreur générale lors de la réservation :", error);
+        this.errorMessage = error.message || "Une erreur inconnue est survenue.";
+        setTimeout(() => (this.errorMessage = null), 3000);
       }
     },
     showDeletePopup(item) {
@@ -228,50 +262,34 @@ export default {
     },
     closeDeletePopup() {
       this.showDeleteModal = false;
-      this.itemToDelete = null;
+      this.suppression = { quantity: 1 };
     },
     deleteItem() {
-      try {
-        setTimeout(() => {
-          this.successMessage = null;
-          this.errorMessage = null;
-          this.closeDeletePopup();
-        }, 3000);
-        if (this.itemToDelete.stock === 0) {
-          this.errorMessage = "Stock épuisé pour cet article";
-          return;
-        }
-        if (this.itemToDelete.stock < this.suppresion.quantity) {
-          this.errorMessage = "Stock insuffisant pour cette quantité";
-          return;
-        }
-        if (this.suppresion.quantity <= 0) {
-          this.errorMessage = "Quantité invalide";
-          return;
-        } else {
-          this.itemToDelete.stock -= this.suppresion.quantity;
-        }
-
-        this.errorMessage = null;
-        this.successMessage = "Suppression effectuée avec succès !";
-      } catch (error) {
-        console.error("Erreur lors de la suppression :", error);
-        this.errorMessage = "Erreur lors de la suppression.";
+      if (
+        this.itemToDelete.stock < this.suppression.quantity ||
+        this.suppression.quantity <= 0
+      ) {
+        this.errorMessage = "Quantité invalide.";
+        setTimeout(() => (this.errorMessage = null), 3000);
+        return;
       }
+      this.itemToDelete.stock -= this.suppression.quantity;
+      this.successMessage = "Suppression effectuée.";
+      setTimeout(() => (this.successMessage = null), 3000);
+      this.closeDeletePopup();
     },
     nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
+      if (this.currentPage < this.totalPages) this.currentPage++;
     },
     prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
+      if (this.currentPage > 1) this.currentPage--;
     },
   },
   mounted() {
-    this.fetchItems(); // Récupère les matériels au montage du composant
+    this.fetchItems();
+    if (this.isConnected) {
+      this.fetchReservations();
+    }
   },
 };
 </script>
@@ -307,7 +325,6 @@ export default {
   table-layout: fixed;
 }
 
-/* Center the table and not the content */
 .is-center {
   text-align: center;
 }
