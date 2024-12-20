@@ -4,7 +4,6 @@
             <p class="information">Bienvenue, <strong>{{ currentUser.name }}</strong>!</p>
             <div class="information-details">
                 <p><em>Email :</em> {{ currentUser.email }}</p>
-                <p><em>Mot de passe :</em> {{ currentUser.password }}</p>
                 <p><em>Rôle :</em> {{ currentUser.role }}</p>
                 <p><em>Membre depuis :</em> {{ formatDate(currentUser.createdAt) }}</p>
             </div>

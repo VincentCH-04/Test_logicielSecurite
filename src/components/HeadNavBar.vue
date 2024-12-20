@@ -66,7 +66,6 @@
 import PopUpConnect from './PopUpConnect.vue';
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-/*import bcrypt from 'bcryptjs';*/
 
 export default {
   components: {
@@ -117,14 +116,6 @@ export default {
         if (!querySnapshot.empty) {
           querySnapshot.forEach(async (doc) => {
             const userData = doc.data();
-            const isPasswordValid = await bcrypt.compare(user.password, userData.password);
-            if (isPasswordValid) {
-              this.updateUser(userData);
-              this.updateAdminStatus(userData.role === 'admin');
-              this.updateConnectionStatus(true);
-            } else {
-              console.error("Mot de passe incorrect.");
-            }
             this.updateUser(userData);
             this.updateAdminStatus(userData.role === 'admin');
             this.updateConnectionStatus(true);
