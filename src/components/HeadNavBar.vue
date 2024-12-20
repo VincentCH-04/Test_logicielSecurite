@@ -31,13 +31,21 @@
       </div>
     </div>
     <div class="navbar-end">
-      <div class="navbar-item">
+      <div class="navbar-item has-dropdown is-hoverable is-align-items-center">
         <div class="output">
-          <a v-if="localIsConnected" class="connecté">
-            <strong>Bienvenue, {{ localUser?.email }}</strong>
+          <a v-if="localIsConnected" class="connecté navbar-link">
+            <strong>{{ localUser?.email }}</strong>
           </a>
-          <a v-else class="Pas connecté">
+          <a v-else class="Pas connecté navbar-link">
             <strong>Veuillez vous connecter</strong>
+          </a>
+        </div>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" @click="$emit('change-view', 'InformationUser')">
+            Information de mon compte
+          </a>
+          <a class="navbar-item" @click="$emit('change-view', 'ContentMain')">
+            Mes réservations
           </a>
         </div>
       </div>
@@ -58,6 +66,7 @@
 import PopUpConnect from './PopUpConnect.vue';
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
+/*import bcrypt from 'bcryptjs';*/
 
 export default {
   components: {
@@ -106,8 +115,16 @@ export default {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          querySnapshot.forEach((doc) => {
+          querySnapshot.forEach(async (doc) => {
             const userData = doc.data();
+            const isPasswordValid = await bcrypt.compare(user.password, userData.password);
+            if (isPasswordValid) {
+              this.updateUser(userData);
+              this.updateAdminStatus(userData.role === 'admin');
+              this.updateConnectionStatus(true);
+            } else {
+              console.error("Mot de passe incorrect.");
+            }
             this.updateUser(userData);
             this.updateAdminStatus(userData.role === 'admin');
             this.updateConnectionStatus(true);

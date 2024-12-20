@@ -62,6 +62,7 @@
 import { doc, setDoc } from "firebase/firestore"; // Utilisation de setDoc pour définir un ID spécifique
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebase";
+import bcrypt from "bcryptjs";
 
 export default {
   data() {
@@ -122,25 +123,27 @@ export default {
       }
 
       try {
-        // Étape 1 : Créer l'utilisateur dans Firebase Authentication
         const userCredential = await createUserWithEmailAndPassword(
             auth,
             this.user.email,
             this.user.password
         );
 
-        // Étape 2 : Ajouter les détails utilisateur dans Firestore
+        const hashedPassword = await bcrypt.hash(this.user.password, 10);
+
         const userId = userCredential.user.uid; // ID généré par Firebase Auth
         await setDoc(doc(db, "Utilisateurs", userId), {
           id: userId,
           name: this.user.name,
           email: this.user.email,
           role: this.user.role,
+          password: hashedPassword, // Stockage du mot de passe (à des fins de démonstration uniquement)
           createdAt: new Date().toISOString(), // Date d'ajout automatique
         });
 
         // Message de succès
         this.message = "Compte utilisateur créé avec succès !";
+        setTimeout(() => (this.message = null), 3000);
         this.success = true;
 
         // Réinitialisation du formulaire

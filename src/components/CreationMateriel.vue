@@ -149,7 +149,7 @@ export default {
         return;
       }
 
-      const querySnapshot = await getDocs(collection(db, "Materials"));
+      const querySnapshot = await getDocs(collection(db, "Materiels"));
       const materialExists = querySnapshot.docs.some(doc => doc.data().name === this.material.name);
 
       if (materialExists) {

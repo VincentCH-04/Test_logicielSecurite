@@ -7,6 +7,7 @@
       <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
       <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
       <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
+      <InformationUser v-if="currentView === 'InformationUser'" :isConnected="isConnected" :currentUser="currentUser"/>
     </div>
     <FooterBar :isAdmin="isAdmin"/>
   </div>
@@ -20,6 +21,7 @@ import CreationMateriel from './components/CreationMateriel.vue';
 import ModificationMateriel from './components/ModificationMateriel.vue';
 import ModificationCompte from './components/ModificationCompte.vue';
 import FooterBar from './components/FooterBar.vue';
+import InformationUser from './components/InformationUser.vue';
 
 export default {
   name: 'App',
@@ -30,7 +32,8 @@ export default {
     CreationMateriel,
     ModificationMateriel,
     ModificationCompte,
-    FooterBar
+    FooterBar,
+    InformationUser
   },
   data() {
     return {
