@@ -161,7 +161,7 @@ export default {
       }
 
       try {
-        await addDoc(collection(db, "Materials"), {
+        await addDoc(collection(db, "Materiels"), {
           name: this.material.name,
           reference: this.material.reference,
           constructeur: this.material.constructeur,

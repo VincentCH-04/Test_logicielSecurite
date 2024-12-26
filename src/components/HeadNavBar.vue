@@ -44,7 +44,7 @@
           <a class="navbar-item" @click="$emit('change-view', 'InformationUser')">
             Information de mon compte
           </a>
-          <a class="navbar-item" @click="$emit('change-view', 'ContentMain')">
+          <a class="navbar-item" @click="$emit('change-view', 'OurReservation')">
             Mes réservations
           </a>
         </div>

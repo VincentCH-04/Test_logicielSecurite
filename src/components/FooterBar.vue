@@ -1,5 +1,5 @@
 <template>
-    <footer class="footer">
+    <footer class="footer" :style="footerStyle">
         <div class="footer-container">
         <div class="footer-section">
             <a @click="toggleContact">Contact</a>
@@ -49,6 +49,10 @@ export default {
         isAdmin: {
             type: Boolean,
             required: true
+        },
+        footerStyle: {  
+            type: Object,
+            required: true,
         }
     },
     data() {

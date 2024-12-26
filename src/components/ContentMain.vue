@@ -1,6 +1,9 @@
 <template>
   <div>
-    <table class="table is-bordered full-page-table is-center">
+    <div v-if="isLoadingReservations">
+      Chargement des données...
+    </div>
+    <table class="table is-bordered full-page-table is-center" v-else>
       <thead>
         <tr>
           <th>NAME</th>
@@ -68,12 +71,16 @@
         <section class="modal-card-body">
           <form @submit.prevent="reserveItem">
             <div class="field">
-              <label class="label">Quantité</label>
-              <input class="input" type="number" v-model="reservation.quantity" required />
+              <label class="label" for="reservation-quantity">Quantité</label>
+              <input id="reservation-quantity" class="input" type="number" v-model="reservation.quantity" required />
             </div>
             <div class="field">
-              <label class="label">Nom du Réservant</label>
-              <input class="input" type="text" v-model="reservation.name" required />
+              <label class="label" for="reservation-name">Nom du Réservant</label>
+              <input id="reservation-name" class="input" type="text" v-model="reservation.name" :placeholder="this.currentUser?.name || ''" disabled/>
+            </div>
+            <div class="field">
+              <label class="label" for="reservation-name">Date de la réservation</label>
+              <input id="reservation-name" class="input" type="text" v-model="reservation.date" :placeholder="formatDate(Date.now())" disabled/>
             </div>
             <div class="field">
               <button class="button is-primary" type="submit">Confirmer</button>
@@ -100,7 +107,7 @@ export default {
   props: {
     isAdmin: { type: Boolean, required: true },
     isConnected: { type: Boolean, required: true },
-    currentUser: { type: Object, required: true }, // Ajoutez ceci
+    currentUser: { type: Object, required: true },
   },
   data() {
     return {
@@ -116,6 +123,7 @@ export default {
       itemsPerPage: 4,
       successMessage: null,
       errorMessage: null,
+      isLoadingReservations: true,
     };
   },
   computed: {
@@ -128,24 +136,33 @@ export default {
     },
   },
   methods: {
+    formatDate(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString("fr-FR");
+    },
     canReserve(item) {
+      if(this.isLoadingReservations) return false;
+
       const userReservation = this.reservations.find(
         (reservation) =>
           reservation.itemId === item.id &&
-          reservation.userId === this.currentUser.id && // Vérifie l'utilisateur connecté
+          reservation.userId === this.currentUser.id &&
           !reservation.returned
       );
       return !userReservation && item.stock > 0;
     },
     canReturn(item) {
+      if(this.isLoadingReservations) return false;
+
       return this.reservations.some(
         (reservation) =>
           reservation.itemId === item.id &&
-          reservation.userId === this.currentUser.id && // Vérifie l'utilisateur connecté
+          reservation.userId === this.currentUser.id &&
           !reservation.returned
       );
     },
     async fetchReservations() {
+      this.isLoadingReservations = true; // Commence à charger les réservations
       try {
         const reservationSnapshot = await getDocs(collection(db, "Réservation"));
         this.reservations = reservationSnapshot.docs.map((doc) => ({
@@ -155,6 +172,9 @@ export default {
       } catch (error) {
         console.error("Erreur lors du chargement des réservations :", error);
         this.reservations = [];
+      }
+      finally {
+        this.isLoadingReservations = false; // Fin du chargement des réservations
       }
     },
     async fetchItems() {
@@ -193,6 +213,8 @@ export default {
     },
     showReservationPopup(item) {
       this.itemToReserve = item;
+      this.reservation.name = this.currentUser.name || "";
+      this.reservation.date = this.formatDate(Date.now());
       this.showReservationModal = true;
     },
     closeReservationPopup() {
@@ -237,9 +259,10 @@ export default {
         try {
           await addDoc(collection(db, "Réservation"), {
             quantity: this.reservation.quantity,
-            userId: this.currentUser.id, // Associer l'utilisateur connecté
-            userName: this.currentUser.name, // Inclure le nom pour plus de clarté
+            userId: this.currentUser.id,
+            userName: this.currentUser.name,
             itemId: this.itemToReserve.id,
+            date: this.reservation.date,
           });
         } catch (addError) {
           console.error("Erreur lors de l'ajout de la réservation :", addError);
@@ -287,9 +310,7 @@ export default {
   },
   mounted() {
     this.fetchItems();
-    if (this.isConnected) {
-      this.fetchReservations();
-    }
+    this.fetchReservations();
   },
 };
 </script>

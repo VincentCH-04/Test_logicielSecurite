@@ -22,8 +22,7 @@
       isConnected: { type: Boolean, required: true },
       currentUser: { 
         type: Object, 
-        required: false, 
-        default: () => ({ id: "", name: "" }) 
+        required: true, 
       },
     },
     methods: {

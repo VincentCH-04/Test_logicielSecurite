@@ -7,9 +7,10 @@
       <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
       <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
       <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
-      <InformationUser v-if="currentView === 'InformationUser'" :isConnected="isConnected" :currentUser="currentUser"/>
     </div>
-    <FooterBar :isAdmin="isAdmin"/>
+    <InformationUser v-if="currentView === 'InformationUser'" :isConnected="isConnected" :currentUser="currentUser"/>
+    <OurReservation v-if="currentView === 'OurReservation'" :isConnected="isConnected" :currentUser="currentUser"/>
+    <FooterBar :isAdmin="isAdmin" :footerStyle="footerStyle"/>
   </div>
 </template>
 
@@ -22,6 +23,7 @@ import ModificationMateriel from './components/ModificationMateriel.vue';
 import ModificationCompte from './components/ModificationCompte.vue';
 import FooterBar from './components/FooterBar.vue';
 import InformationUser from './components/InformationUser.vue';
+import OurReservation from './components/OurReservation.vue';
 
 export default {
   name: 'App',
@@ -33,14 +35,20 @@ export default {
     ModificationMateriel,
     ModificationCompte,
     FooterBar,
-    InformationUser
+    InformationUser,
+    OurReservation
   },
   data() {
     return {
       currentView: 'ContentMain', //Retourne l'état actuel de la vue
       isAdmin: false, // Changer en vrai pour avoir accès aux vues d'administration
       isConnected: false,
-      currentUser: null
+      currentUser: null,
+      footerStyle: {
+        position: 'absolute',
+        bottom: '0',
+        width: '100%',
+      } 
     };
   },
   methods: {
@@ -61,6 +69,25 @@ export default {
     updateCurrentUser(status) {
       this.currentUser = status;
       return this.currentUser;
+    },
+    adjustFooter() {
+      this.$nextTick(() => {
+        const appHeight = document.getElementById('app').offsetHeight;
+        const windowHeight = window.innerHeight;
+
+        if (appHeight >= windowHeight) {
+          this.footerStyle.position = 'relative';
+        } else {
+          this.footerStyle.position = 'absolute';
+        }
+      });
+    },
+    mounted() {
+      this.adjustFooter();
+      window.addEventListener('resize', this.adjustFooter);
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.adjustFooter);
     }
   }
 };
