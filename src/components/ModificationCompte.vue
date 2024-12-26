@@ -5,44 +5,64 @@
     <!-- Formulaire de recherche -->
     <div v-if="!user.id" class="search-form">
       <div class="field">
-        <label class="label" for="searchName">Nom</label>
-        <input
-          class="input"
-          type="text"
-          id="searchName"
-          v-model="search.name"
-          placeholder="Rechercher par nom"
-        />
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-3" for="searchName">Nom</label>
+          <input
+              class="input"
+              type="text"
+              id="searchName"
+              v-model="search.name"
+              placeholder="Rechercher par nom"
+          />
+        </div>
       </div>
 
       <div class="field">
-        <label class="label" for="searchEmail">Email</label>
-        <input
-          class="input"
-          type="email"
-          id="searchEmail"
-          v-model="search.email"
-          placeholder="Rechercher par email"
-        />
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-3" for="searchFirstName">Prénom</label>
+          <input
+              class="input"
+              type="text"
+              id="searchFirstName"
+              v-model="search.firstName"
+              placeholder="Rechercher par prénom"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-3" for="searchEmail">Email</label>
+          <input
+              class="input"
+              type="email"
+              id="searchEmail"
+              v-model="search.email"
+              placeholder="Rechercher par email"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-3" for="searchRole">Rôle</label>
+          <div class="select">
+            <select v-model="search.role" id="searchRole">
+              <option value="">Tous</option>
+              <option value="admin">Admin</option>
+              <option value="user">Utilisateur</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="field is-grouped is-grouped-centered">
         <div class="control">
-          <label class="label" for="searchRole">Rôle</label>
-          <div class="select">
-        <select v-model="search.role" id="searchRole">
-          <option value="">Tous</option>
-          <option value="admin">Admin</option>
-          <option value="user">Utilisateur</option>
-        </select>
-          </div>
-        </div>
-
-        <div class="control is-flex is-align-items-flex-end">
           <button class="button is-info" @click="searchAccounts">Rechercher</button>
         </div>
       </div>
     </div>
+
 
     <!-- Formulaire de modification -->
     <div v-if="user.id" class="edit-form">
@@ -56,6 +76,17 @@
           id="name"
           v-model="user.name"
           placeholder="Nom complet"
+        />
+      </div>
+
+      <div class="field">
+        <label class="label" for="firstName">Prenom</label>
+        <input
+            class="input"
+            type="text"
+            id="firstName"
+            v-model="user.firstName"
+            placeholder="Prénom complet"
         />
       </div>
 
@@ -84,7 +115,7 @@
           <button class="button is-light" @click="resetSelection">Retour</button>
         </div>
       </div>
-      
+
       <div v-if="message" class="notification" :class="{ 'is-success': success, 'is-danger': !success }">
         {{ message }}
       </div>
@@ -95,7 +126,7 @@
       <h2 class="subtitle">Résultats :</h2>
       <ul>
         <li v-for="(user, index) in paginatedResults" :key="user.id" @click="selectUser(user)" class="result-item">
-          {{ index + 1 + (currentPage - 1) * itemsPerPage }} : {{ user.name }} ({{ user.email }}) - {{ user.role }}
+          {{ index + 1 + (currentPage - 1) * itemsPerPage }} : {{ user.name }} {{ user.firstName }} ({{ user.email }}) - {{ user.role }}
         </li>
       </ul>
 
@@ -134,6 +165,7 @@ export default {
     return {
       search: {
         name: "",
+        firstName:"",
         email: "",
         role: "",
       },
@@ -144,6 +176,7 @@ export default {
       user: {
         id: null,
         name: "",
+        firstName:"",
         email: "",
         role: "",
       },
@@ -164,6 +197,7 @@ export default {
       this.user = {
         id: null,
         name: "",
+        firstName:"",
         email: "",
         role: "",
       };
@@ -185,6 +219,13 @@ export default {
           const nameStart = this.search.name;
           const nameEnd = this.search.name + "\uf8ff";
           q = query(q, where("name", ">=", nameStart), where("name", "<", nameEnd));
+        }
+
+        // Recherche partielle sur "name"
+        if (this.search.firstName) {
+          const firstNameStart = this.search.firstName;
+          const firstNameEnd = this.search.firstName + "\uf8ff";
+          q = query(q, where("firstName", ">=", firstNameStart), where("firstName", "<", firstNameEnd));
         }
 
         // Recherche partielle sur "email"
@@ -242,6 +283,7 @@ export default {
 
         await updateDoc(docRef, {
           name: this.user.name,
+          firstName: this.user.firstName,
           email: this.user.email,
           role: this.user.role,
         });

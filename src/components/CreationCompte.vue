@@ -10,6 +10,15 @@
           </div>
           <p v-if="errors.name" class="help is-danger">{{ errors.name }}</p>
         </div>
+
+        <!-- Champ Prénom -->
+        <div class="field">
+          <label class="label" for="firstName">Prenom</label>
+          <div class="control">
+            <input class="input" type="text" id="firstName" v-model="user.firstName" placeholder="Prénom complet"/>
+          </div>
+          <p v-if="errors.firstName" class="help is-danger">{{ errors.firstName }}</p>
+        </div>
   
         <!-- Champ Email -->
         <div class="field">
@@ -87,6 +96,7 @@ export default {
       // Réinitialisation des erreurs
       this.errors = {
         name: null,
+        firstName: null,
         email: null,
         password: null,
         role: null,
@@ -95,6 +105,9 @@ export default {
       // Validation de chaque champ
       if (!this.user.name) {
         this.errors.name = "Le nom est requis.";
+      }
+      if (!this.user.firstName) {
+        this.errors.firstName = "Le prenom est requis.";
       }
       if (!this.user.email) {
         this.errors.email = "L'adresse email est requise.";
@@ -132,6 +145,7 @@ export default {
         await setDoc(doc(db, "Utilisateurs", userId), {
           id: userId,
           name: this.user.name,
+          firstName: this.user.firstName,
           email: this.user.email,
           role: this.user.role,
           createdAt: new Date().toISOString(), // Date d'ajout automatique
@@ -145,6 +159,7 @@ export default {
         // Réinitialisation du formulaire
         this.user = {
           name: "",
+          firstName: "",
           email: "",
           password: "",
           role: "user",
