@@ -94,13 +94,16 @@
             return acc;
           }, {});
 
-          // Filtrer les réservations non retournées
+          // N'afficher que celles de l'utilisateur connecté
           this.reservations = rawReservations
+            .filter((reservation) => reservation.userId === this.currentUser.id) // Filtrer les réservations de l'utilisateur connecté
             .filter((reservation) => !reservation.returned) // Filtrer les réservations non retournées
             .map((reservation) => ({
               ...reservation,
               material: materials[reservation.itemId] || null,
+              date: this.formatDate(reservation.date),
             }));
+
         } catch (error) {
           console.error("Erreur lors du chargement des réservations :", error);
           this.reservations = [];
