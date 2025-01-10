@@ -93,7 +93,7 @@
       </div>
     </div>
     <p v-if="!isConnected" class="demande-connexion">
-      Veuillez vous connecter pour réserver un article
+      Pour pouvoir réserver, vous devez vous connecter.
     </p>
   </div>
 </template>
@@ -120,7 +120,7 @@ export default {
       itemToReserve: null,
       reservation: { quantity: 1 },
       currentPage: 1,
-      itemsPerPage: 4,
+      itemsPerPage: 6,
       successMessage: null,
       errorMessage: null,
       isLoadingReservations: true,
@@ -321,11 +321,12 @@ export default {
 .demande-connexion {
   text-align: center;
   align-content: center;
-
-  margin-top: 20px;
-  height: 160px;
+  margin: 20px auto;
+  height: 10%;
+  width: 40%;
   color: #ffffff;
-  background-color: #ff3860;
+  background-color: #ff0033;
+  border-radius: 5px;
 }
 
 .pagination {

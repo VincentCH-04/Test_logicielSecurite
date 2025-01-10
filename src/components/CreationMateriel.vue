@@ -159,6 +159,13 @@ export default {
         setTimeout(() => (this.message = null), 3000);
         return;
       }
+      if(querySnapshot.docs.some(doc => doc.data().reference === this.material.reference)){
+        this.message = "Un matériel avec la même référence existe déjà.";
+        this.success = false;
+        
+        setTimeout(() => (this.message = null), 3000);
+        return;
+      }
 
       try {
         await addDoc(collection(db, "Materiels"), {

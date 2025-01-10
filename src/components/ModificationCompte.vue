@@ -6,7 +6,7 @@
     <div v-if="!user.id" class="search-form">
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-3" for="searchName">Nom</label>
+          <label class="label mr-5" for="searchName">Nom</label>
           <input
               class="input"
               type="text"
@@ -32,7 +32,7 @@
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-3" for="searchEmail">Email</label>
+          <label class="label mr-5" for="searchEmail">Email</label>
           <input
               class="input"
               type="email"
@@ -43,8 +43,8 @@
         </div>
       </div>
 
-      <div class="field">
-        <div class="control is-flex is-align-items-center">
+      <div class="field is-grouped is-grouped-centered is-flex is-align-items-flex-end">
+        <div class="control">
           <label class="label mr-3" for="searchRole">Rôle</label>
           <div class="select">
             <select v-model="search.role" id="searchRole">
@@ -54,10 +54,7 @@
             </select>
           </div>
         </div>
-      </div>
-
-      <div class="field is-grouped is-grouped-centered">
-        <div class="control">
+        <div class="is-flex is-align-items-flex-end">
           <button class="button is-info" @click="searchAccounts">Rechercher</button>
         </div>
       </div>
@@ -69,37 +66,44 @@
       <h2 class="subtitle">Modifier le Compte</h2>
 
       <div class="field">
-        <label class="label" for="name">Nom</label>
-        <input
-          class="input"
-          type="text"
-          id="name"
-          v-model="user.name"
-          placeholder="Nom complet"
-        />
-      </div>
-
-      <div class="field">
-        <label class="label" for="firstName">Prenom</label>
-        <input
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-5" for="name">Nom</label>
+          <input
             class="input"
             type="text"
-            id="firstName"
-            v-model="user.firstName"
-            placeholder="Prénom complet"
-        />
+            id="name"
+            v-model="user.name"
+            placeholder="Nom complet"
+          />
+        </div>
       </div>
 
       <div class="field">
-        <label class="label" for="email">Email</label>
-        <input
-          class="input"
-          type="email"
-          id="email"
-          v-model="user.email"
-          placeholder="Adresse email"
-        />
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-3" for="firstName">Prenom</label>
+          <input
+              class="input"
+              type="text"
+              id="firstName"
+              v-model="user.firstName"
+              placeholder="Prénom complet"
+          />
+        </div>
       </div>
+
+      <div class="field">
+        <div class="control is-flex is-align-items-center">
+          <label class="label mr-5" for="email">Email</label>
+          <input
+            class="input"
+            type="email"
+            id="email"
+            v-model="user.email"
+            placeholder="Adresse email"
+          />
+        </div>
+      </div>
+
       <div class="field is-grouped is-grouped-centered">
         <div class="control">
           <label class="label" for="role">Rôle</label>
@@ -201,6 +205,8 @@ export default {
         email: "",
         role: "",
       };
+      this.results = [];
+      this.searchCompleted = false;
     },
 
     // Recherche des utilisateurs
@@ -305,6 +311,7 @@ export default {
 </script>
 
 <style scoped>
+
 .edit-account-container {
   max-width: 1000px;
   margin: auto;
