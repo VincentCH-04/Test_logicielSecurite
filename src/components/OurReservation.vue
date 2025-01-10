@@ -17,7 +17,7 @@
               <td>{{ reservation.material?.reference || "N/A" }}</td>
               <td>{{ reservation.quantity }}</td>
               <td>{{ reservation.date || "Non spécifiée" }}</td>
-              <td>{{ reservation.material?.price || "N/A" }} €</td>
+              <td>{{ reservation.material?.prix || "N/A" }} €</td>
               <td v-if="isConnected">
                 <button v-if="!reservation.returned" class="button is-warning is-small" @click="returnMaterial(reservation.material)">RENDRE</button>
               </td>
@@ -31,10 +31,7 @@
         <span>Page {{ currentPage }} sur {{ totalPages }}</span>
         <button class="button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
       </div>
-  
-      <p v-if="!isConnected" class="demande-connexion">
-        Veuillez vous connecter pour réserver un article
-      </p>
+
     </div>
     <div v-else>
       <p class="is-center no-material">Aucun matériel réservé</p>

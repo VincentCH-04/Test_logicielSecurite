@@ -40,7 +40,7 @@
             <strong>Veuillez vous connecter</strong>
           </a>
         </div>
-        <div class="navbar-dropdown">
+        <div class="navbar-dropdown" v-if="localIsConnected">
           <a class="navbar-item" @click="$emit('change-view', 'InformationUser')">
             Information de mon compte
           </a>
@@ -146,6 +146,7 @@ export default {
       this.$emit("update-user", null);
       this.$emit("update-is-admin", false);
       this.$emit("update-is-connected", false);
+      this.$emit('change-view', 'ContentMain');
     }
   }
 };

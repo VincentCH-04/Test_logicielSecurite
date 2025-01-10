@@ -22,7 +22,7 @@
             Version {{ version }}
         </div>
         <div @click="toggleAPropos" class="footer-section">
-            À propos de Locamat
+            <a>À propos de Locamat</a>
             <div v-if="AProposVisu" class="footer-columns">
                 <div class="footer-column">
                     <p>Vincent CHAUMETTE</p>
