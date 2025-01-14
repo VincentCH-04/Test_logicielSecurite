@@ -1,16 +1,22 @@
 <template>
   <div id="app">
-    <HeadNavBar @change-view="changeView" @update-is-admin="updateIsAdmin" @update-is-connected="updateIsConnected" @update-user="updateCurrentUser"/>
-    <ContentMain v-if="currentView === 'ContentMain'" :isAdmin="isAdmin" :isConnected="isConnected" :currentUser="currentUser"/>
-    <div v-if="isConnected && isAdmin">
-      <CreationCompte v-if="currentView === 'CreationCompte'"/>
-      <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
-      <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
-      <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
+    <div class="page-container">
+      <HeadNavBar class="header" @change-view="changeView" @update-is-admin="updateIsAdmin" @update-is-connected="updateIsConnected" @update-user="updateCurrentUser"/>
+      <div class="content">
+        <ContentMain v-if="currentView === 'ContentMain'" :isAdmin="isAdmin" :isConnected="isConnected" :currentUser="currentUser"/>
+        <div v-if="isConnected && isAdmin">
+          <CreationCompte v-if="currentView === 'CreationCompte'"/>
+          <CreationMateriel v-if="currentView === 'CreationMateriel'"/>
+          <ModificationMateriel v-if="currentView === 'ModificationMateriel'"/>
+          <ModificationCompte v-if="currentView === 'ModificationCompte'"/>
+        </div>
+        <InformationUser v-if="currentView === 'InformationUser'" :isConnected="isConnected" :currentUser="currentUser"/>
+        <OurReservation v-if="currentView === 'OurReservation'" :isConnected="isConnected" :currentUser="currentUser"/>
+      </div>
     </div>
-    <InformationUser v-if="currentView === 'InformationUser'" :isConnected="isConnected" :currentUser="currentUser"/>
-    <OurReservation v-if="currentView === 'OurReservation'" :isConnected="isConnected" :currentUser="currentUser"/>
-    <FooterBar :isAdmin="isAdmin" :footerStyle="footerStyle"/>
+  </div>
+  <div id="footer">
+    <FooterBar :isAdmin="isAdmin"/>
   </div>
 </template>
 
@@ -43,12 +49,7 @@ export default {
       currentView: 'ContentMain', //Retourne l'état actuel de la vue
       isAdmin: false, // Changer en vrai pour avoir accès aux vues d'administration
       isConnected: false,
-      currentUser: null,
-      footerStyle: {
-        position: 'absolute',
-        bottom: '0',
-        width: '100%',
-      } 
+      currentUser: null
     };
   },
   methods: {
@@ -69,25 +70,6 @@ export default {
     updateCurrentUser(status) {
       this.currentUser = status;
       return this.currentUser;
-    },
-    adjustFooter() {
-      this.$nextTick(() => {
-        const appHeight = document.getElementById('app').offsetHeight;
-        const windowHeight = window.innerHeight;
-
-        if (appHeight >= windowHeight) {
-          this.footerStyle.position = 'relative';
-        } else {
-          this.footerStyle.position = 'absolute';
-        }
-      });
-    },
-    mounted() {
-      this.adjustFooter();
-      window.addEventListener('resize', this.adjustFooter);
-    },
-    beforeDestroy() {
-      window.removeEventListener('resize', this.adjustFooter);
     }
   }
 };
@@ -98,12 +80,38 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; 
+  display: flex;
   text-align: center;
   color: #2c3e50;
   margin-top: 0px;
 }
 
-.custom-navbar {
-  height: 50px; /* Ajustez cette valeur selon vos besoins */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
+
+.content {
+  padding-bottom: 50px;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#footer {
+  width: 100%;
+  background-color: #000000;
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+}
+
 </style>

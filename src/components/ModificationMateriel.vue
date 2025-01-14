@@ -5,6 +5,8 @@
       <thead>
         <tr>
           <th>NAME</th>
+          <th>REFERENCE</th>
+          <th>CONSTRUCTEUR</th>
           <th>STOCK</th>
           <th>DATE DISPO</th>
           <th>PRIX</th>
@@ -15,7 +17,7 @@
         <tr v-for="(item, index) in paginatedItems" :key="index">
           <template v-if="editableItem === item">
             <!-- Champs modifiables -->
-            <td>
+            <td class="is-loading">
               <input
                 class="input"
                 v-model="editForm.name"
@@ -24,7 +26,25 @@
               />
               <p v-if="errors.name" class="help is-danger">{{ errors.name }}</p>
             </td>
-            <td>
+            <td class="is-loading">
+              <input
+                class="input"
+                v-model="editForm.reference"
+                type="text"
+                placeholder="Reference"
+              />
+              <p v-if="errors.reference" class="help is-danger">{{ errors.reference }}</p>
+            </td>
+            <td class="is-loading">
+              <input
+                class="input"
+                v-model="editForm.constructeur"
+                type="text"
+                placeholder="Constructeur"
+              />
+              <p v-if="errors.constructeur" class="help is-danger">{{ errors.constructeur }}</p>
+            </td>
+            <td class="is-loading">
               <input
                 class="input"
                 v-model.number="editForm.stock"
@@ -33,17 +53,17 @@
               />
               <p v-if="errors.stock" class="help is-danger">{{ errors.stock }}</p>
             </td>
-            <td>
+            <td class="is-center is-vcentered is-loading">
               <input
-                class="input"
-                v-model="editForm.dateDispo"
                 type="date"
+                v-model="editForm.dateDispo"
+                @input="editForm.dateDispo = $event.target.value.split('-').reverse().join('-')"
               />
               <p v-if="errors.dateDispo" class="help is-danger">
                 {{ errors.dateDispo }}
               </p>
             </td>
-            <td>
+            <td class="is-loading">
               <input
                 class="input"
                 v-model.number="editForm.prix"
@@ -53,18 +73,20 @@
               <p v-if="errors.prix" class="help is-danger">{{ errors.prix }}</p>
             </td>
             <td>
-              <button class="button is-success is-small" @click="saveItem(item)">VALIDER</button>
-              <button class="button is-danger is-small" @click="cancelEdit">ANNULER</button>
+              <button class="button is-success is-small rectangle" @click="saveItem(item)">VALIDER</button>
+              <button class="button is-danger is-small rectangle" @click="cancelEdit">ANNULER</button>
             </td>
           </template>
           <template v-else>
             <!-- Affichage en lecture seule -->
             <td>{{ item.name }}</td>
+            <td>{{ item.reference }}</td>
+            <td>{{ item.constructeur }}</td>
             <td>{{ item.stock }}</td>
             <td>{{ item.dateDispo }}</td>
             <td>{{ item.prix }}</td>
             <td>
-              <button class="button is-primary is-small" @click="editItem(item)">MODIFIER</button>
+              <button class="button is-primary is-small rectangle" @click="editItem(item)">MODIFIER</button>
             </td>
           </template>
         </tr>
@@ -95,12 +117,16 @@ export default {
       editableItem: null,
       editForm: {
         name: "",
+        reference: "",
+        constructeur: "",
         stock: 0,
         dateDispo: "",
         prix: 0,
       },
       errors: {
         name: null,
+        reference: null,
+        constructeur: null,
         stock: null,
         dateDispo: null,
         prix: null,
@@ -154,6 +180,8 @@ export default {
     validateFields() {
       this.errors = {
         name: null,
+        reference: null,
+        constructeur: null,
         stock: null,
         dateDispo: null,
         prix: null,
@@ -163,6 +191,12 @@ export default {
       if (!this.editForm.name) {
         this.errors.name = "Le nom est requis.";
       }
+      if (!this.editForm.reference) {
+        this.errors.reference = "La référence est requise.";
+      }
+      if (!this.editForm.constructeur) {
+        this.errors.constructeur = "Le constructeur est requis.";
+      }
       if (this.editForm.stock <= 0) {
         this.errors.stock = "Le stock doit être positif.";
       }
@@ -171,6 +205,28 @@ export default {
       }
       if (this.editForm.prix <= 0) {
         this.errors.prix = "Le prix doit être positif.";
+      }
+
+      // Vérification de la référence en double
+      const referenceExists = this.items.some(
+        (existingItem) =>
+          existingItem.reference === this.editForm.reference &&
+          existingItem.id !== this.editableItem.id // Ignore l'élément en cours d'édition
+      );
+
+      if (referenceExists) {
+        this.errors.reference = "Cette référence existe déjà.";
+      }
+
+      // Vérification du nom en double
+      const nameExists = this.items.some(
+        (existingItem) =>
+          existingItem.name.toLowerCase() === this.editForm.name.toLowerCase() &&
+          existingItem.id !== this.editableItem.id
+      );
+
+      if (nameExists) {
+        this.errors.name = "Ce nom existe déjà.";
       }
 
       return !Object.values(this.errors).some((error) => error !== null);
@@ -188,6 +244,10 @@ export default {
         this.errors.firebase = "Erreur de mise à jour.";
       }
     },
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('fr-FR', options);
+    }
   },
   mounted() {
     this.fetchItems(); // Charger les matériels au montage du composant
@@ -228,5 +288,16 @@ export default {
   color: #ff3860; /* Rouge Bulma */
   font-size: 0.85em;
   margin-top: 5px;
+}
+
+.is-loading {
+  background-color: rgb(0, 35, 148);
+}
+
+.rectangle {
+  margin: 5px;
+  width: 40%;
+  font-size: 70%;
+  align-content: baseline;
 }
 </style>

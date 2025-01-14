@@ -152,3 +152,22 @@ export default {
 };
 </script>
 
+<style scoped>
+
+.custom-navbar {
+  background-color: #000000;
+  border-bottom: 1px solid #dbdbdb;
+  width: 100%;
+  display: flex;
+  justify-content: baseline;
+  padding: 0 20px;
+  align-items: center;
+}
+
+.navbar-item {
+  color: #ffffff;
+  width: auto;
+  font-variant: normal;
+}
+</style>
+
