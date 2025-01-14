@@ -6,7 +6,7 @@
     <div v-if="!user.id" class="search-form">
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-5" for="searchName">Nom</label>
+          <label class="label mr-5" for="searchName">Prénom</label>
           <input
               class="input"
               type="text"
@@ -19,7 +19,7 @@
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-3" for="searchFirstName">Prénom</label>
+          <label class="label mr-3" for="searchFirstName">Nom</label>
           <input
               class="input"
               type="text"
@@ -67,7 +67,7 @@
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-5" for="name">Nom</label>
+          <label class="label mr-5" for="name">Prénom</label>
           <input
             class="input"
             type="text"
@@ -80,7 +80,7 @@
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-3" for="firstName">Prenom</label>
+          <label class="label mr-3" for="firstName">Nom</label>
           <input
               class="input"
               type="text"

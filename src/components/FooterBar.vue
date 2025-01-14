@@ -16,13 +16,13 @@
             <a href="https://drive.google.com/drive/u/0/folders/1_zZupTXEe4kw6BTCLBjRtK7SQmZbKkkE">Drive</a>
         </div>
         <div class="footer-section">
-            © Tous droits réservés 2024 Locamat
+            © Tous droits réservés 2024 Locomate
         </div>
         <div class="footer-section">
             Version {{ version }}
         </div>
         <div @click="toggleAPropos" class="footer-section">
-            <a>À propos de Locamat</a>
+            <a>À propos de Locomate</a>
             <div v-if="AProposVisu" class="footer-columns">
                 <div class="footer-column">
                     <p>Vincent CHAUMETTE</p>

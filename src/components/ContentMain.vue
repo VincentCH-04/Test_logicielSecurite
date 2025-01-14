@@ -24,9 +24,9 @@
           <td>{{ item.dateDispo }}</td>
           <td>{{ item.prix }}</td>
           <td v-if="isConnected">
-            <button class="button is-primary is-small" v-if="canReserve(item)" @click="showReservationPopup(item)">RESERVER</button>
-            <button v-if="canReturn(item)" class="button is-warning is-small" @click="returnMaterial(item)">RENDRE</button>
-            <button v-if="isAdmin" class="button is-danger is-small" @click="showDeletePopup(item)">SUPPRIMER</button>
+            <button class="button is-primary rectangle" v-if="canReserve(item)" @click="showReservationPopup(item)">RESERVER</button>
+            <button v-if="canReturn(item)" class="button is-warning rectangle" @click="returnMaterial(item)">RENDRE</button>
+            <button v-if="isAdmin" class="button is-danger rectangle" @click="showDeletePopup(item)">SUPPRIMER</button>
           </td>
         </tr>
       </tbody>
@@ -338,6 +338,13 @@ export default {
 
 .pagination .button {
   margin: 0 5px;
+}
+
+.rectangle {
+  margin: 5px;
+  width: 40%;
+  font-size: 70%;
+  align-content: baseline;
 }
 
 .full-page-table {
