@@ -74,10 +74,9 @@
       },
     },
     methods: {
-      formatDate(timestamp) {
-        if (!timestamp) return "Non spécifiée";
-        const date = new Date(timestamp);
-        return date.toLocaleDateString("fr-FR");
+      formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('fr-FR', options);
       },
       async fetchReservations() {
         try {

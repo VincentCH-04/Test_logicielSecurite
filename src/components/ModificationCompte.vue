@@ -6,26 +6,26 @@
     <div v-if="!user.id" class="search-form">
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-5" for="searchName">Prénom</label>
+          <label class="label mr-5" for="searchFirstName">Prénom</label>
           <input
               class="input"
               type="text"
-              id="searchName"
-              v-model="search.name"
-              placeholder="Rechercher par nom"
+              id="searchFirstName"
+              v-model="search.firstName"
+              placeholder="Rechercher par Prénom"
           />
         </div>
       </div>
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-3" for="searchFirstName">Nom</label>
+          <label class="label mr-3" for="searchLastName">Nom</label>
           <input
               class="input"
               type="text"
-              id="searchFirstName"
-              v-model="search.firstName"
-              placeholder="Rechercher par prénom"
+              id="searchLastName"
+              v-model="search.lastName"
+              placeholder="Rechercher par Nom"
           />
         </div>
       </div>
@@ -67,12 +67,12 @@
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-5" for="name">Prénom</label>
+          <label class="label mr-5" for="firstName">Prénom</label>
           <input
             class="input"
             type="text"
-            id="name"
-            v-model="user.name"
+            id="firstName"
+            v-model="user.firstName"
             placeholder="Nom complet"
           />
         </div>
@@ -80,12 +80,12 @@
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
-          <label class="label mr-3" for="firstName">Nom</label>
+          <label class="label mr-3" for="lastName">Nom</label>
           <input
               class="input"
               type="text"
-              id="firstName"
-              v-model="user.firstName"
+              id="lastName"
+              v-model="user.lastName"
               placeholder="Prénom complet"
           />
         </div>
@@ -130,7 +130,7 @@
       <h2 class="subtitle">Résultats :</h2>
       <ul>
         <li v-for="(user, index) in paginatedResults" :key="user.id" @click="selectUser(user)" class="result-item">
-          {{ index + 1 + (currentPage - 1) * itemsPerPage }} : {{ user.name }} {{ user.firstName }} ({{ user.email }}) - {{ user.role }}
+          {{ index + 1 + (currentPage - 1) * itemsPerPage }} : {{ user.firstName }} {{ user.lastName }} ({{ user.email }}) - {{ user.role }}
         </li>
       </ul>
 
@@ -168,7 +168,7 @@ export default {
   data() {
     return {
       search: {
-        name: "",
+        lastName: "",
         firstName:"",
         email: "",
         role: "",
@@ -179,7 +179,7 @@ export default {
       itemsPerPage: 5, // Nombre d'utilisateurs par page
       user: {
         id: null,
-        name: "",
+        lastName: "",
         firstName:"",
         email: "",
         role: "",
@@ -200,7 +200,7 @@ export default {
     resetSelection() {
       this.user = {
         id: null,
-        name: "",
+        lastName: "",
         firstName:"",
         email: "",
         role: "",
@@ -218,36 +218,17 @@ export default {
 
       try {
         const usersRef = collection(db, "Utilisateurs");
-        let q = query(usersRef);
+        const filters = [];
 
-        // Recherche partielle sur "name"
-        if (this.search.name) {
-          const nameStart = this.search.name;
-          const nameEnd = this.search.name + "\uf8ff";
-          q = query(q, where("name", ">=", nameStart), where("name", "<", nameEnd));
-        }
+        // Ajout dynamique des filtres
+        if (this.search.firstName) filters.push(...this.buildPartialQuery("firstName", this.search.firstName));
+        if (this.search.lastName) filters.push(...this.buildPartialQuery("lastName", this.search.lastName));
+        if (this.search.email) filters.push(...this.buildPartialQuery("email", this.search.email));
+        if (this.search.role) filters.push(where("role", "==", this.search.role));
 
-        // Recherche partielle sur "name"
-        if (this.search.firstName) {
-          const firstNameStart = this.search.firstName;
-          const firstNameEnd = this.search.firstName + "\uf8ff";
-          q = query(q, where("firstName", ">=", firstNameStart), where("firstName", "<", firstNameEnd));
-        }
-
-        // Recherche partielle sur "email"
-        if (this.search.email) {
-          const emailStart = this.search.email;
-          const emailEnd = this.search.email + "\uf8ff";
-          q = query(q, where("email", ">=", emailStart), where("email", "<", emailEnd));
-        }
-
-        // Filtre exact pour "role"
-        if (this.search.role) {
-          q = query(q, where("role", "==", this.search.role));
-        }
+        const q = filters.length > 0 ? query(usersRef, ...filters) : query(usersRef);
 
         const querySnapshot = await getDocs(q);
-
         querySnapshot.forEach((doc) => {
           this.results.push({ id: doc.id, ...doc.data() });
         });
@@ -256,12 +237,16 @@ export default {
         this.searchCompleted = true;
       } catch (error) {
         console.error("Erreur lors de la recherche :", error);
-        this.message = "Erreur lors de la recherche des comptes.";
+        this.message = `Erreur : ${error.message}`;
         this.success = false;
         setTimeout(() => (this.message = null), 3000);
       }
     },
-
+    buildPartialQuery(field, value) {
+      const start = value;
+      const end = value + "\uf8ff";
+      return [where(field, ">=", start), where(field, "<", end)];
+    },
     // Met à jour les résultats affichés en fonction de la page actuelle
     updatePagination() {
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -288,7 +273,7 @@ export default {
         const docRef = doc(db, "Utilisateurs", this.user.id);
 
         await updateDoc(docRef, {
-          name: this.user.name,
+          lastName: this.user.lastName,
           firstName: this.user.firstName,
           email: this.user.email,
           role: this.user.role,

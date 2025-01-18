@@ -1,7 +1,7 @@
 <template>
     <div class="user-widget">
         <div v-if="isConnected">
-            <p class="information">Bienvenue, <strong>{{ currentUser.name }}</strong>!</p>
+            <p class="information">Bienvenue, <strong>{{ currentUser.firstname }}</strong>!</p>
             <div class="information-details">
                 <p><em>Email :</em> {{ currentUser.email }}</p>
                 <p><em>Rôle :</em> {{ currentUser.role }}</p>
@@ -27,8 +27,8 @@
     },
     methods: {
         formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('fr-FR', options);
         }    
     },
   };

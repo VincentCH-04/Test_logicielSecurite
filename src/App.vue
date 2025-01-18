@@ -12,6 +12,7 @@
         </div>
         <InformationUser v-if="currentView === 'InformationUser'" :isConnected="isConnected" :currentUser="currentUser"/>
         <OurReservation v-if="currentView === 'OurReservation'" :isConnected="isConnected" :currentUser="currentUser"/>
+        <AllReservations v-if="currentView === 'AllReservations'" :isConnected="isConnected"/>
       </div>
     </div>
   </div>
@@ -30,6 +31,7 @@ import ModificationCompte from './components/ModificationCompte.vue';
 import FooterBar from './components/FooterBar.vue';
 import InformationUser from './components/InformationUser.vue';
 import OurReservation from './components/OurReservation.vue';
+import AllReservations from './components/AllReservations.vue';
 
 export default {
   name: 'App',
@@ -42,7 +44,8 @@ export default {
     ModificationCompte,
     FooterBar,
     InformationUser,
-    OurReservation
+    OurReservation,
+    AllReservations
   },
   data() {
     return {

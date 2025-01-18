@@ -83,7 +83,7 @@
             <td>{{ item.reference }}</td>
             <td>{{ item.constructeur }}</td>
             <td>{{ item.stock }}</td>
-            <td>{{ item.dateDispo }}</td>
+            <td>{{ formatDate(item.dateDispo) }}</td>
             <td>{{ item.prix }}</td>
             <td>
               <button class="button is-primary is-small rectangle" @click="editItem(item)">MODIFIER</button>
@@ -147,6 +147,10 @@ export default {
     },
   },
   methods: {
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('fr-FR', options);
+    },
     async fetchItems() {
       try {
         const querySnapshot = await getDocs(collection(db, "Materiels"));
@@ -243,10 +247,6 @@ export default {
         console.error("Erreur Firebase :", error);
         this.errors.firebase = "Erreur de mise à jour.";
       }
-    },
-    formatDate(dateString) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString('fr-FR', options);
     }
   },
   mounted() {

@@ -51,14 +51,53 @@ export default {
     toggleModal() {
       this.isActive = !this.isActive;
     },
+    sanitizeEmail() {
+      this.email = this.email.trim().toLowerCase();
+    },
     async signIn() {
+      this.sanitizeEmail();
+
+      if (!this.email) {
+        this.errorMessages = 'Veuillez entrer un email.';
+        setTimeout(() => {
+          this.errorMessages = '';
+        }, 3000);
+        return;
+      }
+      if (!this.password) {
+        this.errorMessages = 'Veuillez entrer un mot de passe.';
+        setTimeout(() => {
+          this.errorMessages = '';
+        }, 3000);
+        return;
+      }
+
       try {
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         this.toggleModal();
         this.$emit('login-success', userCredential.user);
         return userCredential.user;
       } catch (error) {
-        this.errorMessages = error.message;
+        switch (error.code) {
+          case 'auth/user-not-found':
+            this.errorMessages = 'Utilisateur non trouvé. Veuillez vérifier votre email.';
+            break;
+          case 'auth/invalid-email':
+            this.errorMessages = 'Format de l’email invalide.';
+            break;
+          case 'auth/too-many-requests':
+            this.errorMessages = 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
+            break;
+          case 'auth/wrong-password':
+            this.errorMessages = 'Mot de passe incorrect. Veuillez réessayer.';
+            break;
+          case 'auth/invalid-credential':
+            this.errorMessages = 'Les informations d’identification sont incorrectes.';
+            break;
+          default:
+            this.errorMessages = `Erreur inconnue : ${error.message}`;
+        }
+
         setTimeout(() => {
           this.errorMessages = '';
         }, 3000);

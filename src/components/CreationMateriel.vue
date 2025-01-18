@@ -125,27 +125,44 @@ export default {
   },
   methods: {
     validateForm() {
-      setTimeout(() => {
-        this.errors = {};
-      }, 3000); // 3 secondes
+      this.errors = {}; // Réinitialisation des erreurs
 
-      if (!this.material.name.trim()) this.errors.name = "Le nom du matériel est requis.";
-      if (!this.material.reference.trim()) this.errors.reference = "La référence est requise.";
-      if (!this.material.constructeur.trim()) this.errors.constructeur = "Le constructeur est requis.";
-      if (this.material.stock === null || this.material.stock < 0)
+      if (!this.material.name.trim()) {
+        this.errors.name = "Le nom du matériel est requis.";
+      }
+      if (!this.material.reference.trim()) {
+        this.errors.reference = "La référence est requise.";
+      } else if (!/^\d+$/.test(this.material.reference)) {
+        this.errors.reference = "La référence doit contenir uniquement des chiffres.";
+      }
+      if (!this.material.constructeur.trim()) {
+        this.errors.constructeur = "Le constructeur est requis.";
+      }
+      if (this.material.stock === null || this.material.stock < 0 || isNaN(this.material.stock)) {
         this.errors.stock = "Le stock doit être un nombre positif.";
-      if (!this.material.dateDispo) this.errors.dateDispo = "La date de disponibilité est requise.";
-      if (this.material.prix === null || this.material.prix < 0)
+      }
+      if (!this.material.dateDispo) {
+        this.errors.dateDispo = "La date de disponibilité est requise.";
+      }
+      if (this.material.prix === null || this.material.prix < 0 || isNaN(this.material.prix)) {
         this.errors.prix = "Le prix doit être un nombre positif.";
+      }
 
       return Object.keys(this.errors).length === 0; // Retourne true si aucune erreur
     },
-
     async createMaterial() {
       if (!this.validateForm()) {
         this.message = "Veuillez corriger les erreurs avant de soumettre.";
         this.success = false;
         setTimeout(() => (this.message = null), 3000);
+        setTimeout(() => (this.errors = {
+          name: "",
+          reference: "",
+          constructeur: "",
+          stock: null,
+          dateDispo: "",
+          prix: null
+        }), 3000);
         return;
       }
 
@@ -159,6 +176,7 @@ export default {
         setTimeout(() => (this.message = null), 3000);
         return;
       }
+      
       if(querySnapshot.docs.some(doc => doc.data().reference === this.material.reference)){
         this.message = "Un matériel avec la même référence existe déjà.";
         this.success = false;
@@ -188,7 +206,7 @@ export default {
           constructeur: "",
           stock: null,
           dateDispo: "",
-          prix: null,
+          prix: null
         };
 
       } catch (error) {

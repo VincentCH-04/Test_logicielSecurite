@@ -21,7 +21,7 @@
           <td>{{ item.reference }}</td>
           <td>{{ item.constructeur }}</td>
           <td>{{ item.stock }}</td>
-          <td>{{ item.dateDispo }}</td>
+          <td>{{ formatDate(item.dateDispo) }}</td>
           <td>{{ item.prix }}</td>
           <td v-if="isConnected">
             <button class="button is-primary rectangle" v-if="canReserve(item)" @click="showReservationPopup(item)">RESERVER</button>
@@ -76,7 +76,7 @@
             </div>
             <div class="field">
               <label class="label" for="reservation-name">Nom du Réservant</label>
-              <input id="reservation-name" class="input" type="text" v-model="reservation.name" :placeholder="this.currentUser?.name || ''" disabled/>
+              <input id="reservation-name" class="input" type="text" v-model="reservation.name" :placeholder="this.currentUser?.firstName +' '+ this.currentUser?.lastName || ''" disabled/>
             </div>
             <div class="field">
               <label class="label" for="reservation-name">Date de la réservation</label>
@@ -136,9 +136,9 @@ export default {
     },
   },
   methods: {
-    formatDate(timestamp) {
-      const date = new Date(timestamp);
-      return date.toLocaleDateString("fr-FR");
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('fr-FR', options);
     },
     canReserve(item) {
       if(this.isLoadingReservations) return false;
@@ -213,7 +213,7 @@ export default {
     },
     showReservationPopup(item) {
       this.itemToReserve = item;
-      this.reservation.name = this.currentUser.name || "";
+      this.reservation.name = this.currentUser.firstName+' '+this.currentUser.lastName || "";
       this.reservation.date = this.formatDate(Date.now());
       this.showReservationModal = true;
     },
@@ -260,9 +260,9 @@ export default {
           await addDoc(collection(db, "Réservation"), {
             quantity: this.reservation.quantity,
             userId: this.currentUser.id,
-            userName: this.currentUser.name,
+            userName: this.currentUser.firstName + " " + this.currentUser.lastName,
             itemId: this.itemToReserve.id,
-            date: this.reservation.date,
+            date: this.formatDate(Date.now()),
           });
         } catch (addError) {
           console.error("Erreur lors de l'ajout de la réservation :", addError);

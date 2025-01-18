@@ -4,11 +4,11 @@
       <form @submit.prevent="createUser">
         <!-- Champ Nom -->
         <div class="field">
-          <label class="label" for="name">Nom</label>
+          <label class="label" for="lastName">Nom</label>
           <div class="control">
-            <input class="input" type="text" id="name" v-model="user.name" placeholder="Nom complet"/>
+            <input class="input" type="text" id="lastName" v-model="user.lastName" placeholder="Nom complet"/>
           </div>
-          <p v-if="errors.name" class="help is-danger">{{ errors.name }}</p>
+          <p v-if="errors.lastName" class="help is-danger">{{ errors.lastName }}</p>
         </div>
 
         <!-- Champ Prénom -->
@@ -68,7 +68,7 @@
 
 
 <script>
-import { doc, setDoc } from "firebase/firestore"; // Utilisation de setDoc pour définir un ID spécifique
+import { doc, setDoc, getDocs, where, collection, query} from "firebase/firestore"; // Utilisation de setDoc pour définir un ID spécifique
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from "../firebase";
 
@@ -76,13 +76,13 @@ export default {
   data() {
     return {
       user: {
-        name: "",
+        firstName: "",
         email: "",
         password: "",
         role: "user",
       },
       errors: {
-        name: null,
+        firstName: null,
         email: null,
         password: null,
         role: null,
@@ -92,19 +92,48 @@ export default {
     };
   },
   methods: {
+    sanitizeEmail() {
+      this.user.email = this.user.email.trim().toLowerCase();
+    },
+    sanitizeFirstName() {
+      // mettre les lettres en minuscules sauf la première
+      this.user.firstName = this.user.firstName.trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+    },
+    sanitizeLastName() {
+      // mettre les lettres en minuscules sauf la première
+      this.user.lastName = this.user.lastName.trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+    },
+    isEmailValid(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    },
+    async isEmailExists() {
+      const q = query(collection(db, "Utilisateurs"), where("email", "==", this.user.email));
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    },
+    async isUserExists() {
+      const q = query(
+        collection(db, "Utilisateurs"),
+        where("firstName", "==", this.user.firstName),
+        where("lastName", "==", this.user.lastName)
+      );
+      const querySnapshot = await getDocs(q);
+      return !querySnapshot.empty;
+    },
     validateFields() {
       // Réinitialisation des erreurs
       this.errors = {
-        name: null,
         firstName: null,
+        lastName: null,
         email: null,
         password: null,
         role: null,
       };
 
       // Validation de chaque champ
-      if (!this.user.name) {
-        this.errors.name = "Le nom est requis.";
+      if (!this.user.lastName) {
+        this.errors.lastName = "Le nom est requis.";
       }
       if (!this.user.firstName) {
         this.errors.firstName = "Le prenom est requis.";
@@ -127,14 +156,45 @@ export default {
       return !Object.values(this.errors).some((error) => error !== null);
     },
     async createUser() {
+      // Nettoyage de l'adresse email
+      this.sanitizeEmail();
+      this.sanitizeFirstName();
+      this.sanitizeLastName();
+
       // Validation des champs avant soumission
       if (!this.validateFields()) {
         this.message = "Veuillez corriger les erreurs ci-dessus.";
         this.success = false;
+        setTimeout(() => (this.message = null), 3000);
+        setTimeout(() => {
+        this.errors = {
+          firstName: null,
+          lastName: null,
+          email: null,
+          password: null,
+          role: null,
+        };
+      }, 5000);
         return;
       }
 
       try {
+        const userExists = await this.isUserExists();
+        if (userExists) {
+          this.message = "Erreur : nom et prénom déjà existants.";
+          setTimeout(() => (this.message = null), 3000);
+          this.success = false;
+          return;
+        }
+
+        const emailExists = await this.isEmailExists();
+        if (emailExists) {
+          this.message = "Erreur : email déjà existant.";
+          setTimeout(() => (this.message = null), 3000);
+          this.success = false;
+          return;
+        }
+
         const userCredential = await createUserWithEmailAndPassword(
             auth,
             this.user.email,
@@ -144,8 +204,8 @@ export default {
         const userId = userCredential.user.uid; // ID généré par Firebase Auth
         await setDoc(doc(db, "Utilisateurs", userId), {
           id: userId,
-          name: this.user.name,
           firstName: this.user.firstName,
+          lastName: this.user.lastName,
           email: this.user.email,
           role: this.user.role,
           createdAt: new Date().toISOString(), // Date d'ajout automatique
@@ -155,11 +215,12 @@ export default {
         this.message = "Compte utilisateur créé avec succès !";
         setTimeout(() => (this.message = null), 3000);
         this.success = true;
+        setTimeout(() => this.success = false, 3000);
 
         // Réinitialisation du formulaire
         this.user = {
-          name: "",
           firstName: "",
+          lastName: "",
           email: "",
           password: "",
           role: "user",
@@ -170,8 +231,10 @@ export default {
         // Gestion des erreurs Firebase
         if (error.code === "auth/email-already-in-use") {
           this.errors.email = "Cette adresse email est déjà utilisée.";
+        } else if (error.code === "auth/weak-password") {
+          this.errors.password = "Le mot de passe est trop faible.";
         } else {
-          this.message = error.message;
+          this.message = "Une erreur est survenue lors de la création du compte utilisateur.";
         }
 
         this.success = false;

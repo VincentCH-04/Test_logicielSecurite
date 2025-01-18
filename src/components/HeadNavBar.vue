@@ -47,6 +47,9 @@
           <a class="navbar-item" @click="$emit('change-view', 'OurReservation')">
             Mes réservations
           </a>
+          <a class="navbar-item" @click="$emit('change-view', 'AllReservations')">
+            Toutes les réservations
+          </a>
         </div>
       </div>
       <div class="buttons">
