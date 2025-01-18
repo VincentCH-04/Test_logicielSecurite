@@ -2,15 +2,6 @@
     <div class="create-user-container">
       <h1 class="title">Créer un Compte Utilisateur</h1>
       <form @submit.prevent="createUser">
-        <!-- Champ Nom -->
-        <div class="field">
-          <label class="label" for="lastName">Nom</label>
-          <div class="control">
-            <input class="input" type="text" id="lastName" v-model="user.lastName" placeholder="Nom complet"/>
-          </div>
-          <p v-if="errors.lastName" class="help is-danger">{{ errors.lastName }}</p>
-        </div>
-
         <!-- Champ Prénom -->
         <div class="field">
           <label class="label" for="firstName">Prenom</label>
@@ -18,6 +9,15 @@
             <input class="input" type="text" id="firstName" v-model="user.firstName" placeholder="Prénom complet"/>
           </div>
           <p v-if="errors.firstName" class="help is-danger">{{ errors.firstName }}</p>
+        </div>
+
+        <!-- Champ Nom -->
+        <div class="field">
+          <label class="label" for="lastName">Nom</label>
+          <div class="control">
+            <input class="input" type="text" id="lastName" v-model="user.lastName" placeholder="Nom complet"/>
+          </div>
+          <p v-if="errors.lastName" class="help is-danger">{{ errors.lastName }}</p>
         </div>
   
         <!-- Champ Email -->
@@ -93,15 +93,19 @@ export default {
   },
   methods: {
     sanitizeEmail() {
-      this.user.email = this.user.email.trim().toLowerCase();
+      if(this.user.email) {
+        this.user.email = this.user.email.trim().toLowerCase();
+      }
     },
     sanitizeFirstName() {
-      // mettre les lettres en minuscules sauf la première
-      this.user.firstName = this.user.firstName.trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+      if(this.user.firstName) {
+        this.user.firstName = this.user.firstName.trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+      }
     },
     sanitizeLastName() {
-      // mettre les lettres en minuscules sauf la première
-      this.user.lastName = this.user.lastName.trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+      if(this.user.lastName) {
+        this.user.lastName = this.user.lastName.trim().toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+      }
     },
     isEmailValid(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
