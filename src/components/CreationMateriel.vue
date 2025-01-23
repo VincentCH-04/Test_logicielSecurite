@@ -1,6 +1,6 @@
 <template>
   <div class="create-material-container">
-    <h1 class="title">Créer un Nouveau Matériel</h1>
+    <h1 class="title" style="color: white;">Créer un Nouveau Matériel</h1>
     <form @submit.prevent="createMaterial">
       <div class="field">
         <label class="label" for="materialName">Nom du Matériel</label>
@@ -129,6 +129,8 @@ export default {
 
       if (!this.material.name.trim()) {
         this.errors.name = "Le nom du matériel est requis.";
+      } else if(!/^[a-zA-Z0-9\s]*$/.test(this.material.name)){
+        this.errors.name = "Le nom du matériel ne doit pas contenir de caractères spéciaux.";
       }
       if (!this.material.reference.trim()) {
         this.errors.reference = "La référence est requise.";
@@ -138,13 +140,13 @@ export default {
       if (!this.material.constructeur.trim()) {
         this.errors.constructeur = "Le constructeur est requis.";
       }
-      if (this.material.stock === null || this.material.stock < 0 || isNaN(this.material.stock)) {
+      if (this.material.stock === null || this.material.stock <= 0 || isNaN(this.material.stock)) {
         this.errors.stock = "Le stock doit être un nombre positif.";
       }
       if (!this.material.dateDispo) {
         this.errors.dateDispo = "La date de disponibilité est requise.";
       }
-      if (this.material.prix === null || this.material.prix < 0 || isNaN(this.material.prix)) {
+      if (this.material.prix === null || this.material.prix <= 0 || isNaN(this.material.prix)) {
         this.errors.prix = "Le prix doit être un nombre positif.";
       }
 
@@ -247,5 +249,10 @@ export default {
   width: 100%;
   text-align: center;
   align-items: flex-end;
+}
+
+.error-message {
+  color: #ff1900;
+  margin-top: 5px;
 }
 </style>

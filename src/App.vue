@@ -89,7 +89,7 @@ export default {
   overflow-x: hidden; 
   display: flex;
   text-align: center;
-  color: #2c3e50;
+  color: #ffffff;
   margin-top: 0px;
 }
 
@@ -105,6 +105,7 @@ export default {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  background-color: #141414;
 }
 
 #footer {

@@ -1,6 +1,6 @@
 <template>
   <div class="edit-account-container">
-    <h1 class="title">Rechercher et Modifier un Compte</h1>
+    <h1 class="title" style="color: white;">Rechercher et Modifier un Compte</h1>
 
     <!-- Formulaire de recherche -->
     <div v-if="!user.id" class="search-form">
@@ -63,7 +63,7 @@
 
     <!-- Formulaire de modification -->
     <div v-if="user.id" class="edit-form">
-      <h2 class="subtitle">Modifier le Compte</h2>
+      <h2 class="subtitle" style="color: whitesmoke">Modifier le Compte</h2>
 
       <div class="field">
         <div class="control is-flex is-align-items-center">
@@ -116,6 +116,7 @@
         </div>
         <div class="buttons is-flex is-align-items-flex-end">
           <button class="button is-primary" @click="updateAccount">Modifier</button>
+          <button class="button is-danger" @click="deleteUser">Supprimer</button>
           <button class="button is-light" @click="resetSelection">Retour</button>
         </div>
       </div>
@@ -127,7 +128,7 @@
 
     <!-- Résultats de la recherche avec pagination -->
     <div v-if="results.length > 0" class="results">
-      <h2 class="subtitle">Résultats :</h2>
+      <h2 class="subtitle" style="color: whitesmoke">Résultats :</h2>
       <ul>
         <li v-for="(user, index) in paginatedResults" :key="user.id" @click="selectUser(user)" class="result-item">
           {{ index + 1 + (currentPage - 1) * itemsPerPage }} : {{ user.firstName }} {{ user.lastName }} ({{ user.email }}) - {{ user.role }}
@@ -161,7 +162,7 @@
 </template>
 
 <script>
-import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default {
@@ -171,7 +172,7 @@ export default {
         lastName: "",
         firstName:"",
         email: "",
-        role: "",
+        role: ""
       },
       results: [], // Liste complète des résultats
       paginatedResults: [], // Résultats de la page courante
@@ -187,6 +188,7 @@ export default {
       message: null,
       success: false,
       searchCompleted: false,
+      userExists: false,
     };
   },
   computed: {
@@ -207,6 +209,22 @@ export default {
       };
       this.results = [];
       this.searchCompleted = false;
+    },
+    async deleteUser() {
+      try {
+        // Supprimer l'item de la base de données
+        await deleteDoc(doc(db, "Utilisateurs", this.user.id));
+
+        this.success = true;
+        this.message = "Suppression de l'utilisateur : "+ this.user.firstName +" effectuée.";
+        setTimeout(() => (this.message = null), 3000);
+        setTimeout(() => (this.success = false), 3000);
+
+      } catch (error) {
+        console.error("Erreur lors de la suppression :", error);
+        this.message = "Une erreur est survenue lors de la suppression.";
+        setTimeout(() => (this.message = null), 3000);
+      }
     },
 
     // Recherche des utilisateurs
@@ -271,6 +289,36 @@ export default {
     async updateAccount() {
       try {
         const docRef = doc(db, "Utilisateurs", this.user.id);
+
+        // Rechercher si un utilisateur a déjà cette adresse mail
+        const usersRef = collection(db, "Utilisateurs");
+        const q = query(usersRef, where("email", "==", this.user.email));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          if (doc.id !== this.user.id) {
+            this.message = "Un utilisateur avec cette adresse email existe déjà.";
+            this.success = false;
+            this.userExists = true;
+            setTimeout(() => (this.message = null), 3000);
+          }
+          else this.userExists = false;
+        });
+
+        // Rechercher si un utilisateur avec le même Nom et Prénom existe déjà
+        const q2 = query(usersRef, where("lastName", "==", this.user.lastName), where("firstName", "==", this.user.firstName));
+        const querySnapshot2 = await getDocs(q2);
+        querySnapshot2.forEach((doc) => {
+          if (doc.id !== this.user.id) {
+            this.message = "Un utilisateur avec ce Nom et Prénom existe déjà.";
+            this.success = false;
+            this.userExists = true;
+            setTimeout(() => (this.message = null), 3000);
+          }
+          else this.userExists = false;
+        });
+        
+        if(this.userExists) return;
+
 
         await updateDoc(docRef, {
           lastName: this.user.lastName,
@@ -359,6 +407,10 @@ export default {
   font-weight: bold;
   color: white;
   margin: 0 10px;
+}
+
+.field label{
+  color: #ffffff;
 }
 
 </style>

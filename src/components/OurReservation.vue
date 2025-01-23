@@ -177,10 +177,21 @@
     width: 100%;
     height: 80%;
     table-layout: fixed;
+    background-color: #141414;
   }
   
   .is-center {
     text-align: center;
+  }
+
+  .table th {
+    background-color: #0078d4;
+    color: rgb(255, 255, 255);
+  }
+
+  .table td {
+    text-align: center;
+    color: #ffffff;
   }
   
   </style>

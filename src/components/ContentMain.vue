@@ -1,4 +1,4 @@
-<template>
+<template class="ContentMain">
   <div>
     <div v-if="isLoadingReservations">
       Chargement des données...
@@ -6,23 +6,23 @@
     <table class="table is-bordered full-page-table is-center" v-else>
       <thead>
         <tr>
-          <th>NAME</th>
-          <th>REFERENCE</th>
-          <th>CONSTRUCTEUR</th>
-          <th>STOCK</th>
-          <th>DATE DISPO</th>
-          <th>PRIX</th>
-          <th v-if="isConnected">Actions</th>
+          <th class="text-table">NAME</th>
+          <th class="text-table">REFERENCE</th>
+          <th class="text-table">CONSTRUCTEUR</th>
+          <th class="text-table">STOCK</th>
+          <th class="text-table">DATE DISPO</th>
+          <th class="text-table">PRIX</th>
+          <th class="text-table" v-if="isConnected">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(item, index) in paginatedItems" :key="index">
-          <td>{{ item.name }}</td>
-          <td>{{ item.reference }}</td>
-          <td>{{ item.constructeur }}</td>
-          <td>{{ item.stock }}</td>
-          <td>{{ formatDate(item.dateDispo) }}</td>
-          <td>{{ item.prix }}</td>
+          <td class="text-table">{{ item.name }}</td>
+          <td class="text-table">{{ item.reference }}</td>
+          <td class="text-table">{{ item.constructeur }}</td>
+          <td class="text-table">{{ item.stock }}</td>
+          <td class="text-table">{{ formatDate(item.dateDispo) }}</td>
+          <td class="text-table">{{ item.prix }}</td>
           <td v-if="isConnected">
             <button class="button is-primary rectangle" v-if="canReserve(item)" @click="showReservationPopup(item)">RESERVER</button>
             <button v-if="canReturn(item)" class="button is-warning rectangle" @click="returnMaterial(item)">RENDRE</button>
@@ -49,7 +49,6 @@
         </header>
         <section class="modal-card-body">
           <p>Êtes-vous sûr de vouloir supprimer <strong>{{ itemToDelete?.name }}</strong> ?</p>
-          <input class="input" type="number" v-model="suppression.quantity" placeholder="Entrez la quantité" required />
           <p v-if="successMessage" class="notification is-success">{{ successMessage }}</p>
           <p v-if="errorMessage" class="notification is-danger">{{ errorMessage }}</p>
         </section>
@@ -99,7 +98,7 @@
 </template>
 
 <script>
-import { collection, getDocs, doc, updateDoc, addDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, addDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default {
@@ -115,7 +114,7 @@ export default {
       reservations: [],
       showDeleteModal: false,
       itemToDelete: null,
-      suppression: { quantity: 1 },
+      suppression: { },
       showReservationModal: false,
       itemToReserve: null,
       reservation: { quantity: 1 },
@@ -287,19 +286,21 @@ export default {
       this.showDeleteModal = false;
       this.suppression = { quantity: 1 };
     },
-    deleteItem() {
-      if (
-        this.itemToDelete.stock < this.suppression.quantity ||
-        this.suppression.quantity <= 0
-      ) {
-        this.errorMessage = "Quantité invalide.";
+    async deleteItem() {
+      try {
+        // Supprimer l'item de la base de données
+        await deleteDoc(doc(db, "Materiels", this.itemToDelete.id));
+
+        this.successMessage = "Suppression effectuée.";
+        setTimeout(() => (this.successMessage = null), 3000);
+        this.closeDeletePopup();
+        this.fetchItems(); // Rafraîchir la liste des items
+
+      } catch (error) {
+        console.error("Erreur lors de la suppression :", error);
+        this.errorMessage = "Une erreur est survenue lors de la suppression.";
         setTimeout(() => (this.errorMessage = null), 3000);
-        return;
       }
-      this.itemToDelete.stock -= this.suppression.quantity;
-      this.successMessage = "Suppression effectuée.";
-      setTimeout(() => (this.successMessage = null), 3000);
-      this.closeDeletePopup();
     },
     nextPage() {
       if (this.currentPage < this.totalPages) this.currentPage++;
@@ -352,10 +353,17 @@ export default {
   width: 100%;
   height: 80%;
   table-layout: fixed;
+  background-color: rgb(14, 14, 14);
+  color: #ffffff;
 }
 
 .is-center {
   text-align: center;
 }
+
+.text-table {
+  color: #ffffff;
+}
+
 
 </style>

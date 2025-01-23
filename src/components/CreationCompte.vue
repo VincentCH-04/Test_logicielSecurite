@@ -258,9 +258,14 @@ export default {
   border-radius: 8px;
 }
 
+.label {
+  color: white;
+}
+
 .title {
   text-align: center;
   margin-bottom: 20px;
+  color: white;
 }
 
 .notification {

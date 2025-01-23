@@ -194,9 +194,13 @@ export default {
 
       if (!this.editForm.name) {
         this.errors.name = "Le nom est requis.";
+      } else if(!/^[a-zA-Z0-9\s]*$/.test(this.material.name)){
+        this.errors.name = "Le nom du matériel ne doit pas contenir de caractères spéciaux.";
       }
       if (!this.editForm.reference) {
         this.errors.reference = "La référence est requise.";
+      }else if (!/^\d+$/.test(this.editForm.reference)) {
+        this.errors.reference = "La référence doit contenir uniquement des chiffres.";
       }
       if (!this.editForm.constructeur) {
         this.errors.constructeur = "Le constructeur est requis.";
@@ -236,8 +240,17 @@ export default {
       return !Object.values(this.errors).some((error) => error !== null);
     },
     async saveItem(item) {
-      if (!this.validateFields()) return;
-
+      if (!this.validateFields()){
+        setTimeout(() => (this.errors = {
+          name: "",
+          reference: "",
+          constructeur: "",
+          stock: null,
+          dateDispo: "",
+          prix: null
+        }), 3000);
+        return;
+      } 
       try {
         const docRef = doc(db, "Materiels", item.id);
         await updateDoc(docRef, { ...this.editForm });
@@ -261,12 +274,24 @@ export default {
   margin: 80px auto;
   text-align: center;
   margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.table th {
+    background-color: #0078d4;
+    color: rgb(255, 255, 255);
+}
+
+.table td {
+text-align: center;
+color: #ffffff;
 }
 
 .full-page-table {
   width: 100%;
   height: 70%;
   table-layout: fixed;
+  background-color: #141414;
 }
 
 .is-center {
